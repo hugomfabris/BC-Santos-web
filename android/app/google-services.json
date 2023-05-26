@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "165142934889",
+    "project_id": "bc-santos",
+    "storage_bucket": "bc-santos.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165142934889:android:42fa8b4c7ba5e2b1ef79f8",
+        "android_client_info": {
+          "package_name": "com.example.bcsantos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "165142934889-1poek76oot79av3cndcg6g99dv564596.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDq-qhCOTrj0IiquKcu3B54MHWasvEpj24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "165142934889-1poek76oot79av3cndcg6g99dv564596.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
