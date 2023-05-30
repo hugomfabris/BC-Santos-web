@@ -248,6 +248,24 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "firebase_database",
+      "rootUri": "file:///C:/Users/hugom/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_database-10.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_database_platform_interface",
+      "rootUri": "file:///C:/Users/hugom/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_database_platform_interface-0.2.5+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_database_web",
+      "rootUri": "file:///C:/Users/hugom/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_database_web-0.2.3+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "firebase_dynamic_links",
       "rootUri": "file:///C:/Users/hugom/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_dynamic_links-5.3.1",
       "packageUri": "lib/",
@@ -256,6 +274,24 @@
     {
       "name": "firebase_dynamic_links_platform_interface",
       "rootUri": "file:///C:/Users/hugom/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_dynamic_links_platform_interface-0.2.6+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_storage",
+      "rootUri": "file:///C:/Users/hugom/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_storage-11.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_storage_platform_interface",
+      "rootUri": "file:///C:/Users/hugom/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_storage_platform_interface-4.4.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_storage_web",
+      "rootUri": "file:///C:/Users/hugom/AppData/Local/Pub/Cache/hosted/pub.dev/firebase_storage_web-3.6.1",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -734,7 +770,7 @@
       "languageVersion": "2.18"
     }
   ],
-  "generated": "2023-05-28T18:17:48.435816Z",
+  "generated": "2023-05-29T22:39:27.477190Z",
   "generator": "pub",
   "generatorVersion": "3.0.1"
 }
