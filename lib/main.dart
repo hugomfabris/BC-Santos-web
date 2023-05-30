@@ -11,6 +11,7 @@ import 'firebase_options.dart';
 
 
 Future<void> main() async {
+   
    WidgetsFlutterBinding.ensureInitialized();
 
    await Firebase.initializeApp(
@@ -28,7 +29,7 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const MyApp(),
+      builder: (context, state) => const MyHomePage(title: 'BC SANTOS'),
       routes: [
         GoRoute(
           path: 'sign-in',
@@ -103,30 +104,10 @@ final _router = GoRouter(
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
-  // @override
-  // Widget build(BuildContext context) {
-  //   return MaterialApp(
-  //     title: 'BC SANTOS',
-  //     theme: ThemeData(
-  //       // This is the theme of your application.
-  //       //
-  //       // Try running your application with "flutter run". You'll see the
-  //       // application has a blue toolbar. Then, without quitting the app, try
-  //       // changing the primarySwatch below to Colors.green and then invoke
-  //       // "hot reload" (press "r" in the console where you ran "flutter run",
-  //       // or simply save your changes to "hot reload" in a Flutter IDE).
-  //       // Notice that the counter didn't reset back to zero; the application
-  //       // is not restarted.
-  //       primarySwatch: Colors.indigo,
-  //     ),
-  //     home: const MyHomePage(title: 'BC SANTOS'),   
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Firebase Meetup',
+      title: 'BC SANTOS',
       theme: ThemeData(
         buttonTheme: Theme.of(context).buttonTheme.copyWith(
               highlightColor: Colors.indigo,
