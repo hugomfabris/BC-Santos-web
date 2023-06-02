@@ -33,6 +33,63 @@ class _MyHomePageState extends State<MyHomePage> {
         fullscreenDialog: true));
   }
 
+  void _showMenu(BuildContext context) {
+    setState(() {});
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SizedBox(
+            height: 250,
+            child: Column(
+              children: [
+                ListTile(
+                    title: const Text('Plano de ação das Barcaças'),
+                    onTap: () {
+                      setState(() {
+                        bcChipsVisibility = false;
+                        inspectorChipsVisibility = false;
+                      });
+                      // ShellExecuteService shellExecuteService =
+                      //     ShellExecuteService();
+                      // shellExecuteService
+                      //     .openFile(inspectionController.planPath);
+                    }),
+                ListTile(
+                  title: const Text('Atualizar Plano de ação das Barcaças'),
+                  onTap: () {
+                    setState(() {
+                      bcChipsVisibility = false;
+                      inspectorChipsVisibility = false;
+                    });
+                    // _setPlanPath();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Filtro por Embarcações'),
+                  onTap: () {
+                    setState(() {
+                      bcChipsVisibility = !bcChipsVisibility;
+                      inspectorChipsVisibility = false;
+                    });
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Filtro por Inspetores'),
+                  onTap: () {
+                    setState(() {
+                      inspectorChipsVisibility = !inspectorChipsVisibility;
+                      bcChipsVisibility = false;
+                    });
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -43,12 +100,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        // leading: IconButton(
-        //   icon: const Icon(Icons.menu),
-        //   onPressed: () => _showMenu(context),
-        // ),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => _showMenu(context),
+        ),
         title: Text(widget.title),
         centerTitle: true,
       ),
