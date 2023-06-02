@@ -17,6 +17,7 @@ class InspectionController extends ChangeNotifier {
   StreamSubscription<QuerySnapshot>? _inspectionsSubscription;
   final List<Inspection> _inspections = [];
   CollectionReference? inspectionsRef;
+
   void init() {
     
     _inspectionsSubscription = FirebaseFirestore.instance
@@ -55,5 +56,14 @@ class InspectionController extends ChangeNotifier {
       'certificate': inspection.certificate,
       'observations': inspection.observations,
     });
+  }
+
+  deleteInspection(Inspection inspection) {
+    inspections.remove(inspection);
+    notifyListeners();
+    FirebaseFirestore.instance
+        .collection('inspections')
+        .doc(inspection.id)
+        .delete();
   }
 }
