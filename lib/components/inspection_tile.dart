@@ -23,9 +23,9 @@ class InspectionTile extends StatefulWidget {
 class InspectionTileState extends State<InspectionTile> {
   DateFormat dateFormat = DateFormat("dd/MM/yyyy");
 
-  // void removeInspection() {
-  //   widget.inspectionController.removeInspection(widget.inspection);
-  // }
+  void deleteInspection() {
+    widget.inspectionController.deleteInspection(widget.inspection);
+  }
 
   void editInspection(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
@@ -125,14 +125,14 @@ class InspectionTileState extends State<InspectionTile> {
                           ],
                       ),
                       actions: [
-                        // TextButton(
-                        //     onPressed: () {
-                        //       setState(() {
-                        //         removeInspection();
-                        //       });
-                        //       Navigator.pop(context);
-                        //     },
-                        //     child: const Text('Deletar')),
+                        TextButton(
+                            onPressed: () {
+                              setState(() {
+                                deleteInspection();
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Deletar')),
                         TextButton(
                             onPressed: () {
                               Navigator.pop(context);
@@ -232,14 +232,14 @@ class InspectionTileState extends State<InspectionTile> {
                           ],
                       ),
                       actions: [
-                        // TextButton(
-                        //     onPressed: () {
-                        //       setState(() {
-                        //         removeInspection();
-                        //       });
-                        //       Navigator.pop(context);
-                        //     },
-                        //     child: const Text('Deletar')),
+                        TextButton(
+                            onPressed: () {
+                              setState(() {
+                                deleteInspection();
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Deletar')),
                         TextButton(
                             onPressed: () {
                               Navigator.pop(context);
@@ -331,14 +331,14 @@ class InspectionTileState extends State<InspectionTile> {
                         children: [Text(widget.inspection.observations!)],
                       ),
                       actions: [
-                        // TextButton(
-                        //     onPressed: () {
-                        //       setState(() {
-                        //         removeInspection();
-                        //       });
-                        //       Navigator.pop(context);
-                        //     },
-                        //     child: const Text('Deletar')),
+                        TextButton(
+                            onPressed: () {
+                              setState(() {
+                                deleteInspection();
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Deletar')),
                         TextButton(
                             onPressed: () {
                               Navigator.pop(context);
