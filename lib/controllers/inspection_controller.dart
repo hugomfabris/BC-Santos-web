@@ -17,13 +17,13 @@ class InspectionController extends ChangeNotifier {
   StreamSubscription<QuerySnapshot>? _inspectionsSubscription;
   final List<Inspection> _inspections = [];
   CollectionReference? inspectionsRef;
-
   void init() {
-    _inspections.clear();
+    
     _inspectionsSubscription = FirebaseFirestore.instance
         .collection('inspections')
         .snapshots()
         .listen((QuerySnapshot<Map<String, dynamic>> data) {
+          _inspections.clear();
       for (final document in data.docs) {
         final inspection = Inspection.fromDocument(document);
         inspections.add(inspection);

@@ -1,13 +1,12 @@
 import 'package:bcsantos/controllers/inspection_controller.dart';
-import 'package:bcsantos/models/hive_models.dart';
+import 'package:bcsantos/models/inspection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 
-///This is the screen where you can add a new Inspection to the hive box
+
 class AddInspectionPage extends StatefulWidget {
   final InspectionController inspectionController;
 
@@ -23,7 +22,6 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
   late TextEditingController _anotationsController;
   late TextEditingController _nameController;
   late TextEditingController _observationsController;
-  late Box box;
   String? checklistPath;
   String? certificatePath;
   DateTime? inspectionDate;
@@ -34,6 +32,7 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
     'OMS V',
     'OMS XVII',
     'SC 42',
+    'SC 53',
     'SC 54',
     'ECO MARÍTIMO',
     'GEOMAR',
@@ -63,7 +62,6 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
   @override
   void initState() {
     super.initState();
-    box = Hive.box<Inspection>('inspectionBox');
     _inspectorController = TextEditingController();
     _inspectionTypeController = TextEditingController();
     _anotationsController = TextEditingController();
@@ -81,16 +79,15 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
     super.dispose();
   }
 
-  void saveInspection() {
+  saveInspection() {
     final inspection = Inspection()
       ..inspector = _inspectorController.text.toUpperCase().trim()
+      ..shipName = _nameController.text.toUpperCase().trim()
       ..inspectionType = _inspectionTypeController.text.toUpperCase().trim()
       ..anotations = int.parse(_anotationsController.text)
       ..inspectionDate = inspectionDate ?? DateTime.now()
-      ..id = const Uuid().v4()
       ..checklist = checklistPath
       ..certificate = certificatePath
-      ..name = _nameController.text.toUpperCase().trim()
       ..observations = _observationsController.text.trim();
     widget.inspectionController.addInspection(inspection);
     Navigator.of(context).pop();
