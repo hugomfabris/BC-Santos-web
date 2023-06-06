@@ -17,7 +17,9 @@ class _MyHomePageState extends State<MyHomePage> {
   late InspectionController inspectionController;
   bool bcChipsVisibility = false;
   bool inspectorChipsVisibility = false;
+  bool isLogged = false;
   String? selectedFilter;
+
 
   @override
   void initState() {
@@ -103,13 +105,21 @@ class _MyHomePageState extends State<MyHomePage> {
         leading: IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () => _showMenu(context),
-        ),
+          ),
         title: Text(widget.title),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.login),
+            onPressed: () {
+              setState(() {});
+            },
+          ),
+        ],
       ),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          if (constraints.maxWidth <= 850) {
+          if (constraints.maxWidth <= 900) {
             return _buildLayout('mobile');
           } else if (constraints.maxWidth <= 1200) {
             return _buildLayout('tablet');
