@@ -1,11 +1,11 @@
 import 'package:bcsantos/controllers/inspection_controller.dart';
 import 'package:bcsantos/models/inspection.dart';
-import 'package:bcsantos/services/pdf_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:intl/intl.dart';
 
 class AddInspectionPage extends StatefulWidget {
   final InspectionController inspectionController;
@@ -25,6 +25,7 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
   String? checklistUrl;
   String? certificateUrl;
   DateTime? inspectionDate;
+  DateFormat dateFormat = DateFormat("dd.MM.yyyy");
   List<String> allowedBCRB = [
     'CD INGÁ',
     'CD ICARAÍ',
@@ -362,7 +363,7 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                           if (result != null) {
                             final selecedFile = result.files.first.bytes;
                             final storageRef = FirebaseStorage.instance.ref().child('gs://bc-santos.appspot.com/');
-                            final fileRef = storageRef.child('certificados/${_nameController.text.trim()}${inspectionDate.toString()}.pdf');
+                            final fileRef = storageRef.child('certificados/${dateFormat.format(inspectionDate!)} - certificado ${_nameController.text.trim()}.pdf');
                             final uploadTask = fileRef.putData(selecedFile!);
                             final snapshot = await uploadTask;
                             certificateUrl = await snapshot.ref.getDownloadURL();
@@ -391,7 +392,7 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                           if (result != null) {
                             final selecedFile = result.files.first.bytes;
                             final storageRef = FirebaseStorage.instance.ref().child('gs://bc-santos.appspot.com/');
-                            final fileRef = storageRef.child('checklists/${_nameController.text.trim()}${inspectionDate.toString()}.pdf');
+                            final fileRef = storageRef.child('checklists/${dateFormat.format(inspectionDate!)} - certificado ${_nameController.text.trim()}.pdf');
                             final uploadTask = fileRef.putData(selecedFile!);
                             final snapshot = await uploadTask;
                             checklistUrl = await snapshot.ref.getDownloadURL();
