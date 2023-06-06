@@ -19,7 +19,6 @@ class InspectionController extends ChangeNotifier {
   CollectionReference? inspectionsRef;
 
   void init() {
-    
     _inspectionsSubscription = FirebaseFirestore.instance
         .collection('inspections')
         .snapshots()

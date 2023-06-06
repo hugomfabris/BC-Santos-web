@@ -30,7 +30,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   chips_choice: ^3.0.0
-  cloud_firestore: ^4.7.1
+  cloud_firestore: ^4.8.0
   cupertino_icons: ^1.0.2
   dropdown_search: ^5.0.6
   file_picker: ^5.2.5
@@ -48,6 +48,7 @@ dependencies:
   intl: ^0.18.0
   path: ^1.8.2
   provider: ^6.0.5
+  universal_html: ^2.2.3
   uuid: ^3.0.7
 
 dev_dependencies:
