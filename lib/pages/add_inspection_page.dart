@@ -1,11 +1,11 @@
 import 'package:bcsantos/controllers/inspection_controller.dart';
 import 'package:bcsantos/models/inspection.dart';
+import 'package:bcsantos/services/pdf_button.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-
 
 class AddInspectionPage extends StatefulWidget {
   final InspectionController inspectionController;
@@ -22,8 +22,8 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
   late TextEditingController _anotationsController;
   late TextEditingController _nameController;
   late TextEditingController _observationsController;
-  String? checklistPath;
-  String? certificatePath;
+  String? checklistUrl;
+  String? certificateUrl;
   DateTime? inspectionDate;
   List<String> allowedBCRB = [
     'CD INGÁ',
@@ -86,8 +86,8 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
       ..inspectionType = _inspectionTypeController.text.toUpperCase().trim()
       ..anotations = int.parse(_anotationsController.text)
       ..inspectionDate = inspectionDate ?? DateTime.now()
-      ..checklist = checklistPath
-      ..certificate = certificatePath
+      ..checklist = checklistUrl
+      ..certificate = certificateUrl
       ..observations = _observationsController.text.trim();
     widget.inspectionController.addInspection(inspection);
     Navigator.of(context).pop();
@@ -355,23 +355,28 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                       onPressed: () async {
                         FilePickerResult? result =
                             await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
+                          type: FileType.any,
                           dialogTitle: "Selecione o certificado da embarcação",
-                          allowedExtensions: ['pdf'],
                         );
+                        try {
+                          if (result != null) {
+                            final selecedFile = result.files.first.bytes;
+                            final storageRef = FirebaseStorage.instance.ref().child('gs://bc-santos.appspot.com/');
+                            final fileRef = storageRef.child('certificados/${_nameController.text.trim()}${inspectionDate.toString()}.pdf');
+                            final uploadTask = fileRef.putData(selecedFile!);
+                            final snapshot = await uploadTask;
+                            certificateUrl = await snapshot.ref.getDownloadURL();
 
-                        if (result != null) {
-                          final path = result.paths.first;
-                          setState(() {
-                            certificatePath = path;
-                          });
-                        } else {
-                          certificatePath = null;
+                          } else {
+                            print('O usuário cancelou a seleção de arquivos');
+                          }
+                        } catch (e) {
+                          print(e);
                         }
                       },
-                      child: Text(certificatePath == null
+                      child: Text(certificateUrl == null
                           ? "Selecionar Certificado"
-                          : certificatePath!)),
+                          : certificateUrl!.toString())),
                   const SizedBox(
                     height: 15,
                   ),
@@ -379,26 +384,31 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                       onPressed: () async {
                         FilePickerResult? result =
                             await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          dialogTitle: "Selecione o checklist da inspeção",
-                          allowedExtensions: ['pdf', 'xls', 'xlsx'],
+                          type: FileType.any,
+                          dialogTitle: "Selecione o checklist da embarcação",
                         );
+                        try {
+                          if (result != null) {
+                            final selecedFile = result.files.first.bytes;
+                            final storageRef = FirebaseStorage.instance.ref().child('gs://bc-santos.appspot.com/');
+                            final fileRef = storageRef.child('checklists/${_nameController.text.trim()}${inspectionDate.toString()}.pdf');
+                            final uploadTask = fileRef.putData(selecedFile!);
+                            final snapshot = await uploadTask;
+                            checklistUrl = await snapshot.ref.getDownloadURL();
 
-                        if (result != null) {
-                          final path = result.paths.first;
-                          setState(() {
-                            checklistPath = path;
-                          });
-                        } else {
-                          checklistPath = null;
+                          } else {
+                            print('O usuário cancelou a seleção de arquivos');
+                          }
+                        } catch (e) {
+                          print(e);
                         }
                       },
-                      child: Text(checklistPath == null
+                      child: Text(certificateUrl == null
                           ? "Selecionar Checklist"
-                          : checklistPath!)),
+                          : checklistUrl!.toString())),
                   const SizedBox(
                     height: 15,
                   ),
                 ])));
-            }
+  }
 }
