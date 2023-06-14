@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:intl/intl.dart';
+import '../services/file_management.dart';
 
 class AddInspectionPage extends StatefulWidget {
+  
   final InspectionController inspectionController;
 
   const AddInspectionPage({super.key, required this.inspectionController});
@@ -354,26 +356,12 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles(
-                          type: FileType.any,
-                          dialogTitle: "Selecione o certificado da embarcação",
-                        );
-                        try {
-                          if (result != null) {
-                            final selecedFile = result.files.first.bytes;
-                            final storageRef = FirebaseStorage.instance.ref().child('gs://bc-santos.appspot.com/');
-                            final fileRef = storageRef.child('certificados/${dateFormat.format(inspectionDate!)} - certificado ${_nameController.text.trim()}.pdf');
-                            final uploadTask = fileRef.putData(selecedFile!);
-                            final snapshot = await uploadTask;
-                            certificateUrl = await snapshot.ref.getDownloadURL();
-
-                          } else {
-                            print('O usuário cancelou a seleção de arquivos');
-                          }
-                        } catch (e) {
-                          print(e);
-                        }
+                        final fileManagement = FileManagement();
+                        final result = await fileManagement.pickFiles("certificado");
+                        final upload = await fileManagement.upload(
+                            result, _nameController.text, "certificado", inspectionDate!
+                            );
+                        certificateUrl = upload;
                       },
                       child: Text(certificateUrl == null
                           ? "Selecionar Certificado"
@@ -383,26 +371,12 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles(
-                          type: FileType.any,
-                          dialogTitle: "Selecione o checklist da embarcação",
-                        );
-                        try {
-                          if (result != null) {
-                            final selecedFile = result.files.first.bytes;
-                            final storageRef = FirebaseStorage.instance.ref().child('gs://bc-santos.appspot.com/');
-                            final fileRef = storageRef.child('checklists/${dateFormat.format(inspectionDate!)} - certificado ${_nameController.text.trim()}.pdf');
-                            final uploadTask = fileRef.putData(selecedFile!);
-                            final snapshot = await uploadTask;
-                            checklistUrl = await snapshot.ref.getDownloadURL();
-
-                          } else {
-                            print('O usuário cancelou a seleção de arquivos');
-                          }
-                        } catch (e) {
-                          print(e);
-                        }
+                        final fileManagement = FileManagement();
+                        final result = await fileManagement.pickFiles("checklist");
+                        final upload = await fileManagement.upload(
+                            result, _nameController.text, "checklist", inspectionDate!
+                            );
+                        checklistUrl = upload;
                       },
                       child: Text(certificateUrl == null
                           ? "Selecionar Checklist"
