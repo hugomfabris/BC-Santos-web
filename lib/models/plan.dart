@@ -27,18 +27,4 @@ class Plan {
   String toString() {
     return 'Plan{type: $type, url: $url}';
   }
-
-  Future<void> updateUrl(type) async {
-    final docRef = await FirebaseFirestore.instance
-        .collection('plans')
-        .where('type', isEqualTo: type)
-        .get();
-    
-    final result = await docRef.docs[0].reference.update({'url': url}).whenComplete(() {
-      print('URL atualizada com sucesso');
-    }).catchError((error) {
-      print('Erro ao atualizar a URL: $error');
-    });
-    return result;
-  }
 }
