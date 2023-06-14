@@ -1,10 +1,7 @@
-import 'dart:html';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:bcsantos/services/file_management.dart';
 import 'package:flutter/material.dart';
 import 'package:bcsantos/controllers/inspection_controller.dart';
-// import 'package:bcsantos/services/shell_execute_service.dart';
 import 'package:intl/intl.dart';
-import 'package:bcsantos/pages/add_inspection_page.dart';
 import 'package:bcsantos/models/inspection.dart';
 
 class InspectionTile extends StatefulWidget {
@@ -23,19 +20,9 @@ class InspectionTile extends StatefulWidget {
 }
 
 class InspectionTileState extends State<InspectionTile> {
+  
   DateFormat dateFormat = DateFormat("dd/MM/yyyy");
-
-  void deleteInspection() {
-    widget.inspectionController.deleteInspection(widget.inspection);
-  }
-
-  void editInspection(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => AddInspectionPage(
-              inspectionController: widget.inspectionController,
-            ),
-        fullscreenDialog: true));
-  }
+  FileManagement fileManagement = FileManagement();
 
   @override
   void initState() {
@@ -81,17 +68,6 @@ class InspectionTileState extends State<InspectionTile> {
     }
   }
 
-  void openFile(url) async {
-    final fileReference = FirebaseStorage.instance.refFromURL(url);
-    final downloadURL = await fileReference.getDownloadURL();
-    print(downloadURL);
-
-    final anchorElement = AnchorElement(href: downloadURL)
-      ..setAttribute('target', '_blank')
-      ..setAttribute('rel', 'noopener noreferrer');
-    anchorElement.click();
-  }
-
   buildTile(Widget data, Widget? subtitle) {
     return Card(
         child: ListTile(
@@ -113,7 +89,7 @@ class InspectionTileState extends State<InspectionTile> {
                             content: Text('Inspeção não possui certificado')),
                       );
                     } else {
-                      openFile(widget.inspection.certificate);
+                      fileManagement.openFile(widget.inspection.certificate!);
                     }
                   }),
               IconButton(
@@ -127,7 +103,7 @@ class InspectionTileState extends State<InspectionTile> {
                             content: Text('Inspeção não possui checklist')),
                       );
                     } else {
-                      openFile(widget.inspection.checklist);
+                      fileManagement.openFile(widget.inspection.checklist!);
                     }
                   }),
             ]),
@@ -164,7 +140,7 @@ class InspectionTileState extends State<InspectionTile> {
                               TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      deleteInspection();
+                                      widget.inspectionController.deleteInspection(widget.inspection);
                                     });
                                     Navigator.pop(context);
                                   },
