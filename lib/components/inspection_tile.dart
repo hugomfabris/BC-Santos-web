@@ -20,7 +20,6 @@ class InspectionTile extends StatefulWidget {
 }
 
 class InspectionTileState extends State<InspectionTile> {
-  
   DateFormat dateFormat = DateFormat("dd/MM/yyyy");
   FileManagement fileManagement = FileManagement();
 
@@ -33,38 +32,39 @@ class InspectionTileState extends State<InspectionTile> {
   Widget build(BuildContext context) {
     String platform = widget.platform;
     if (platform == 'mobile') {
-      return buildTile(Text(widget.inspection.shipName!), 
-      Center(
-        child: Column(
-      children: [
-        Text(dateFormat.format(widget.inspection.inspectionDate!)),
-        Text(widget.inspection.inspector!),
-      ],
-    )));
+      return buildTile(
+          Text(widget.inspection.shipName!),
+          Center(
+              child: Column(
+            children: [
+              Text(dateFormat.format(widget.inspection.inspectionDate!)),
+              Text(widget.inspection.inspector!),
+            ],
+          )));
     } else {
       return buildTile(
           DataTable(columns: const [
-              DataColumn(label: Text('BC/RB', textAlign: TextAlign.center)),
-              DataColumn(label: Text('INSPETOR', textAlign: TextAlign.center)),
-              DataColumn(label: Text('ANOTAÇÕES', textAlign: TextAlign.center)),
-              DataColumn(label: Text('INSPEÇÃO', textAlign: TextAlign.center)),
-              DataColumn(label: Text('DATA', textAlign: TextAlign.center))
-            ], rows: [
-              DataRow(cells: [
-                DataCell(Text(widget.inspection.shipName!,
-                    textAlign: TextAlign.center)),
-                DataCell(Text(widget.inspection.inspector!,
-                    textAlign: TextAlign.center)),
-                DataCell(Text(widget.inspection.anotations.toString(),
-                    textAlign: TextAlign.center)),
-                DataCell(Text(widget.inspection.inspectionType!,
-                    textAlign: TextAlign.center)),
-                DataCell(Text(
-                  dateFormat.format(widget.inspection.inspectionDate!),
-                )),
-              ])
-            ]),
-            null);
+            DataColumn(label: Text('BC/RB', textAlign: TextAlign.center)),
+            DataColumn(label: Text('INSPETOR', textAlign: TextAlign.center)),
+            DataColumn(label: Text('ANOTAÇÕES', textAlign: TextAlign.center)),
+            DataColumn(label: Text('INSPEÇÃO', textAlign: TextAlign.center)),
+            DataColumn(label: Text('DATA', textAlign: TextAlign.center))
+          ], rows: [
+            DataRow(cells: [
+              DataCell(Text(widget.inspection.shipName!,
+                  textAlign: TextAlign.center)),
+              DataCell(Text(widget.inspection.inspector!,
+                  textAlign: TextAlign.center)),
+              DataCell(Text(widget.inspection.anotations.toString(),
+                  textAlign: TextAlign.center)),
+              DataCell(Text(widget.inspection.inspectionType!,
+                  textAlign: TextAlign.center)),
+              DataCell(Text(
+                dateFormat.format(widget.inspection.inspectionDate!),
+              )),
+            ])
+          ]),
+          null);
     }
   }
 
@@ -75,7 +75,6 @@ class InspectionTileState extends State<InspectionTile> {
               child: data,
             ),
             leading: CircleAvatar(child: Text(widget.inspection.inspector![0])),
-
             subtitle: subtitle,
             trailing: Wrap(children: [
               IconButton(
@@ -112,15 +111,15 @@ class InspectionTileState extends State<InspectionTile> {
                   context: context,
                   barrierDismissible: true,
                   builder: (context) {
-                    return GestureDetector (
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child:
-                        ListView(children: [
+                    return GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: ListView(children: [
                           AlertDialog(
                             title: Center(
-                                child: SelectableText(widget.inspection.shipName!)),
+                                child: SelectableText(
+                                    widget.inspection.shipName!)),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -140,7 +139,8 @@ class InspectionTileState extends State<InspectionTile> {
                               TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      widget.inspectionController.deleteInspection(widget.inspection);
+                                      widget.inspectionController
+                                          .deleteInspection(widget.inspection);
                                     });
                                     Navigator.pop(context);
                                   },
@@ -154,7 +154,7 @@ class InspectionTileState extends State<InspectionTile> {
                             actionsAlignment: MainAxisAlignment.center,
                           )
                         ]));
-                      });
-                }));
-              }
+                  });
+            }));
+  }
 }
