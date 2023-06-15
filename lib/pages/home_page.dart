@@ -62,23 +62,32 @@ class _MyHomePageState extends State<MyHomePage> {
           child: ListTile(
             title: const Text('Plano de ação das Barcaças'),
             onTap: () async {
-              final querySnapshot = await FirebaseFirestore.instance
-                  .collection('plans')
-                  .where('type', isEqualTo: 'barcaças')
-                  .get();
-              if (querySnapshot.size > 0) {
-                final document = querySnapshot.docs[0];
-                final url = document['url'];
-                planBC = Plan.fromDocument(document);
-                print(planBC);
-                fileManagement.openFile(planBC.url);
-              } else {
+              try {
+                final querySnapshot = await FirebaseFirestore.instance
+                    .collection('plans')
+                    .where('type', isEqualTo: 'barcaças')
+                    .get();
+                if (querySnapshot.size > 0) {
+                  final document = querySnapshot.docs[0];
+                  planBC = Plan.fromDocument(document);
+                  fileManagement.openFile(planBC.url);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        backgroundColor: Colors.indigo,
+                        duration: Duration(seconds: 2),
+                        content: Text(
+                            'Plano de ação das barcaças não encontrado, por favor atualizar')),
+                  );
+                }
+              } catch (e) {
+                print(e);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                       backgroundColor: Colors.indigo,
                       duration: Duration(seconds: 2),
                       content: Text(
-                          'Plano de ação das barcaças não encontrado, por favor atualize o plano de ação')),
+                          'Plano de ação das barcaças não encontrado, por favor atualizar')),
                 );
               }
             },
@@ -95,7 +104,6 @@ class _MyHomePageState extends State<MyHomePage> {
               if (querySnapshot.size > 0) {
                 final document = querySnapshot.docs[0];
                 planRB = Plan.fromDocument(document);
-                print(planRB);
                 fileManagement.openFile(planRB.url);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       backgroundColor: Colors.indigo,
                       duration: Duration(seconds: 2),
                       content: Text(
-                          'Plano de ação dos rebocadores não encontrado, por favor atualize o plano de ação')),
+                          'Plano de ação dos rebocadores não encontrado, por favor atualizar')),
                 );
               }
             },
@@ -113,35 +121,57 @@ class _MyHomePageState extends State<MyHomePage> {
           child: ListTile(
             title: const Text('Atualizar Plano de ação das Barcaças'),
             onTap: () async {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => const AlertDialog(
+                  title: Text('Upload em progresso'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      LinearProgressIndicator(), // Barra de progresso
+                      SizedBox(height: 16),
+                      Text(
+                          'Aguarde enquanto o arquivo está sendo carregado...'),
+                    ],
+                  ),
+                ),
+              );
+
               setState(() {
                 bcChipsVisibility = false;
                 inspectorChipsVisibility = false;
               });
+
               try {
                 final result = await fileManagement
                     .pickFiles("Plano de ação das barcaças");
-                final String? upload =
-                    await fileManagement.uploadPlan(result, 'barcaças');
-                
+                final String upload =
+                    await fileManagement.uploaAndGetUrl(result, 'barcaças');
                 planBC.url = upload;
-                await planBC.updateUrl('barcaças'); // Atualiza a URL no Firestore
-                print(planBC);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      backgroundColor: Colors.indigo,
-                      duration: Duration(seconds: 2),
-                      content: Text(
-                          'Plano de ação das barcaças atualizado com sucesso')),
-                );
+
+                await fileManagement.updateUrl('barcaças', upload).whenComplete(
+                      () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          backgroundColor: Colors.indigo,
+                          duration: Duration(seconds: 2),
+                          content: Text(
+                              'Plano de ação das barcaças atualizado com sucesso'),
+                        ),
+                      ),
+                    ); // Atualiza a URL no Firestore
+
+                // Atualize a interface do usuário com base no resultado do upload
               } catch (e) {
-                print(e);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      backgroundColor: Colors.indigo,
-                      duration: Duration(seconds: 2),
-                      content: Text(
-                          'Erro ao atualizar o plano de ação das barcaças, por favor tente novamente')),
+                    backgroundColor: Colors.indigo,
+                    duration: Duration(seconds: 2),
+                    content: Text(
+                        'Erro ao atualizar o plano de ação das barcaças, por favor tente novamente'),
+                  ),
                 );
+              } finally {
+                Navigator.pop(context); // Feche o diálogo de progresso
               }
             },
           ),
@@ -150,35 +180,59 @@ class _MyHomePageState extends State<MyHomePage> {
           child: ListTile(
             title: const Text('Atualizar Plano de ação dos Rebocadores'),
             onTap: () async {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => const AlertDialog(
+                  title: Text('Upload em progresso'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      LinearProgressIndicator(), // Barra de progresso
+                      SizedBox(height: 16),
+                      Text(
+                          'Aguarde enquanto o arquivo está sendo carregado...'),
+                    ],
+                  ),
+                ),
+              );
+
               setState(() {
                 bcChipsVisibility = false;
                 inspectorChipsVisibility = false;
               });
+
               try {
                 final result = await fileManagement
                     .pickFiles("Plano de ação dos rebocadores");
-                final String? upload =
-                    await fileManagement.uploadPlan(result, 'rebocadores');
-                
+                final String upload =
+                    await fileManagement.uploaAndGetUrl(result, 'rebocadores');
                 planRB.url = upload;
-                await planRB.updateUrl('rebocadores'); // Atualiza a URL no Firestore
-                print(planRB);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      backgroundColor: Colors.indigo,
-                      duration: Duration(seconds: 2),
-                      content: Text(
-                          'Plano de ação dos rebocadores atualizado com sucesso')),
-                );
+
+                await fileManagement
+                    .updateUrl('rebocadores', upload)
+                    .whenComplete(
+                      () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          backgroundColor: Colors.indigo,
+                          duration: Duration(seconds: 2),
+                          content: Text(
+                              'Plano de ação dos rebocadores atualizado com sucesso'),
+                        ),
+                      ),
+                    ); // Atualiza a URL no Firestore
+
+                // Atualize a interface do usuário com base no resultado do upload
               } catch (e) {
-                print(e);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      backgroundColor: Colors.indigo,
-                      duration: Duration(seconds: 2),
-                      content: Text(
-                          'Erro ao atualizar o plano de ação dos rebocadores, por favor tente novamente')),
+                    backgroundColor: Colors.indigo,
+                    duration: Duration(seconds: 2),
+                    content: Text(
+                        'Erro ao atualizar o plano de ação dos rebocadores, por favor tente novamente'),
+                  ),
                 );
+              } finally {
+                Navigator.pop(context); // Feche o diálogo de progresso
               }
             },
           ),
