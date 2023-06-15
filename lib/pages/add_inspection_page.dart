@@ -1,7 +1,5 @@
 import 'package:bcsantos/controllers/inspection_controller.dart';
 import 'package:bcsantos/models/inspection.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -9,7 +7,6 @@ import 'package:intl/intl.dart';
 import '../services/file_management.dart';
 
 class AddInspectionPage extends StatefulWidget {
-  
   final InspectionController inspectionController;
 
   const AddInspectionPage({super.key, required this.inspectionController});
@@ -28,6 +25,7 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
   String? certificateUrl;
   DateTime? inspectionDate;
   DateFormat dateFormat = DateFormat("dd.MM.yyyy");
+  late FileManagement fileManagement;
   List<String> allowedBCRB = [
     'CD INGÁ',
     'CD ICARAÍ',
@@ -65,6 +63,7 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
   @override
   void initState() {
     super.initState();
+    fileManagement = FileManagement();
     _inspectorController = TextEditingController();
     _inspectionTypeController = TextEditingController();
     _anotationsController = TextEditingController();
@@ -355,32 +354,117 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                     height: 15,
                   ),
                   ElevatedButton(
-                      onPressed: () async {
-                        final fileManagement = FileManagement();
-                        final result = await fileManagement.pickFiles("certificado");
-                        final upload = await fileManagement.upload(
-                            result, _nameController.text, "certificado", inspectionDate!
-                            );
-                        certificateUrl = upload;
-                      },
-                      child: Text(certificateUrl == null
-                          ? "Selecionar Certificado"
-                          : certificateUrl!.toString())),
+                    onPressed: () async {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => const AlertDialog(
+                        title: Text('Upload em progresso'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            LinearProgressIndicator(), // Barra de progresso
+                            SizedBox(height: 16),
+                            Text('Aguarde enquanto o arquivo está sendo carregado...'),
+                          ],
+                        ),
+                      ),
+                    );
+                    
+                    final result = await fileManagement.pickFiles("certificado");
+                    
+                    try {
+                      if (result != null) {
+                        final effectiveInspectionDate = inspectionDate ?? DateTime.now();
+                        final upload = await fileManagement.uploaAndGetUrl(result, "certificados", effectiveInspectionDate, _nameController.text)
+                        .whenComplete(
+                          () => ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                            backgroundColor: Colors.indigo,
+                            duration: Duration(seconds: 2),
+                            content: Text("Upload concluído"),
+                          ),
+                        )); 
+                        setState(() {
+                          certificateUrl = upload;
+                        });                    
+                      } 
+                      else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.indigo,
+                            duration: Duration(seconds: 2),
+                            content: Text("Upload cancelado"),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      print(e);
+                    } finally {
+                      Navigator.pop(context); // Feche o diálogo de progresso
+                    }
+                  },
+                  child: Text(certificateUrl == null
+                      ? "Selecionar Certificado"
+                      : certificateUrl!.toString())
+                ),
                   const SizedBox(
                     height: 15,
                   ),
                   ElevatedButton(
-                      onPressed: () async {
-                        final fileManagement = FileManagement();
-                        final result = await fileManagement.pickFiles("checklist");
-                        final upload = await fileManagement.upload(
-                            result, _nameController.text, "checklist", inspectionDate!
-                            );
-                        checklistUrl = upload;
-                      },
-                      child: Text(certificateUrl == null
-                          ? "Selecionar Checklist"
-                          : checklistUrl!.toString())),
+                    onPressed: () async {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => const AlertDialog(
+                        title: Text('Upload em progresso'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            LinearProgressIndicator(), // Barra de progresso
+                            SizedBox(height: 16),
+                            Text('Aguarde enquanto o arquivo está sendo carregado...'),
+                          ],
+                        ),
+                      ),
+                    );
+                    
+                    final result = await fileManagement.pickFiles("checklist");
+                    
+                    try {
+                      if (result != null) {
+                        final effectiveInspectionDate = inspectionDate ?? DateTime.now();
+                        final upload = await fileManagement.uploaAndGetUrl(result, "checklists", effectiveInspectionDate, _nameController.text)
+                        .whenComplete(
+                          () => 
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                            backgroundColor: Colors.indigo,
+                            duration: Duration(seconds: 2),
+                            content: Text("Upload concluído"),
+                          ),
+                        ));
+                        setState(() {
+                          checklistUrl = upload;
+                        });                 
+                      } 
+                      else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.indigo,
+                            duration: Duration(seconds: 2),
+                            content: Text("Upload cancelado"),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      print(e);
+                    } finally {
+                      Navigator.pop(context); // Feche o diálogo de progresso
+                    }
+                  },
+                  child: Text(checklistUrl == null
+                      ? "Selecionar Checklist"
+                      : checklistUrl!.toString())
+                ),
                   const SizedBox(
                     height: 15,
                   ),
