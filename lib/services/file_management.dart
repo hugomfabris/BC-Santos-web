@@ -56,72 +56,76 @@ class FileManagement extends StatelessWidget {
     return result;
   }
 
-  upload(FilePickerResult? file, String shipName, String type,
-      DateTime? inspectionDate) async {
-    try {
-      if (file != null) {
-        final selecedFile = file.files.first.bytes;
-        final storageRef =
-            FirebaseStorage.instance.ref().child('gs://bc-santos.appspot.com/');
-        final fileRef = storageRef.child(
-            '${type}s/${dateFormat.format(inspectionDate!)} - $type ${shipName.trim()}.pdf');
-        final uploadTask = fileRef.putData(selecedFile!);
-        final snapshot = await uploadTask;
-        final checklistUrl = await snapshot.ref.getDownloadURL();
-        return checklistUrl;
-      } else {
-        print('O usuário cancelou a seleção de arquivos');
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  uploadPlan(FilePickerResult? file, String planType) async {
-  try {
+  uploaAndGetUrl(FilePickerResult? file, String folder,
+      [DateTime? inspectionDate, String? shipName]) async {
     if (file != null) {
+      // Get the file bytes and reference the firebase storage path
       final selectedFile = file.files.first.bytes;
       final storageRef = FirebaseStorage.instance.ref();
-      
-      // Deletar pasta de referência
+
       try {
-        await storageRef.child('Plano de ação/$planType/').delete();
+        if (folder == 'barcaças' || folder == 'rebocadores') {
+          // Delete the reference folder
+          try {
+            final filesToDelete = await storageRef.child('Plano de ação/$folder').listAll();
+            for (final file in filesToDelete.items) {
+              await file.delete();
+            }
+          } catch (e) {
+            print(e);
+          }
+          // Create file reference and upload the file
+          final fileName =
+              '${dateFormat.format(DateTime.now())} - Plano de ação ${folder.trim()}.pdf';
+          // Create or reference a folder and upload the file
+          final fileRef = storageRef.child('Plano de ação/$folder/$fileName');
+          final uploadTask = fileRef.putData(selectedFile!);
+          final snapshot = await uploadTask;
+          // Get the file url and return it
+          final planUrl = await snapshot.ref.getDownloadURL();
+          // Update the plan url in the database
+          return planUrl;
+        } else if (folder == 'certificados') {
+          // Create or reference a folder and upload the file
+          final fileName = '${dateFormat.format(inspectionDate!)} - certificado ${shipName!.trim().toLowerCase()}.pdf';
+          final fileRef = storageRef.child('$folder/$shipName/$fileName');
+          // Insert the bytes format file in the folder
+          final uploadTask = fileRef.putData(selectedFile!);
+          final snapshot = await uploadTask;
+          // Get the file url and return it
+          final certificateUrl = await snapshot.ref.getDownloadURL();
+          return certificateUrl;
+        } else if (folder == 'checklists') {
+          // Create or reference a folder and upload the file
+          final fileName = '${dateFormat.format(inspectionDate!)} - checklist ${shipName!.trim().toLowerCase()}.pdf';
+          final fileRef = storageRef.child('$folder/$shipName/$fileName');
+          // Insert the bytes format file in the folder
+          final uploadTask = fileRef.putData(selectedFile!);
+          final snapshot = await uploadTask;
+          // Get the file url and return it
+          final checklistUrl = await snapshot.ref.getDownloadURL();
+          return checklistUrl;
+        }
       } catch (e) {
-        print(e);
         print('A pasta não existe');
       }
-      
-      // Crie uma nova pasta de referência
-      final newFolderPath = 'Plano de ação/$planType/';
-      await storageRef.child(newFolderPath).putString('');
-      
-      final fileRef = storageRef.child(
-          '$newFolderPath${dateFormat.format(DateTime.now())} - ${planType.trim()}.pdf');
-      final uploadTask = fileRef.putData(selectedFile!);
-      final snapshot = await uploadTask;
-      
-      final planUrl = await snapshot.ref.getDownloadURL();
-      return planUrl;
     } else {
       print('O usuário cancelou a seleção de arquivos');
     }
-  } catch (e) {
-    print(e);
   }
-}
 
-
-  updatePlan(String type) async {
-    final querySnapshot = await FirebaseFirestore.instance
+  Future<void> updateUrl(String type, String url) async {
+    final docRef = await FirebaseFirestore.instance
         .collection('plans')
-        .where('planType', isEqualTo: type)
+        .where('type', isEqualTo: type)
         .get();
-    final documents = querySnapshot.docs;
-    if (documents.isNotEmpty) {
-      final documentId = documents.first.id;
-      final documentReference =
-          FirebaseFirestore.instance.collection('plans').doc(documentId);
-      await documentReference.update({'url': 'teste'});
-    }
+
+    final updatedUrl =
+        await docRef.docs[0].reference.update({'url': url}).whenComplete(() {
+      print('URL atualizada com sucesso');
+    }).catchError((error) {
+      print('Erro ao atualizar a URL: $error');
+    });
+    return updatedUrl;
   }
 }
