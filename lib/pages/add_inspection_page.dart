@@ -1,5 +1,6 @@
 import 'package:bcsantos/controllers/inspection_controller.dart';
 import 'package:bcsantos/models/inspection.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -26,32 +27,8 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
   DateTime? inspectionDate;
   DateFormat dateFormat = DateFormat("dd.MM.yyyy");
   late FileManagement fileManagement;
-  List<String> allowedBCRB = [
-    'CD INGÁ',
-    'CD ICARAÍ',
-    'E-240',
-    'OMS V',
-    'OMS XVII',
-    'SC 42',
-    'SC 53',
-    'SC 54',
-    'ECO MARÍTIMO',
-    'GEOMAR',
-    'GUARATUBA II',
-    'SM FLAMENGO',
-    'SM PRAINHA',
-    'SM VITÓRIA',
-    'SM SÃO GONÇALO',
-    'THOR AMIGO'
-  ];
-  List<String> allowedInspectors = [
-    'ALAN',
-    'HUGO',
-    'NILO',
-    'REGINALDO',
-    'RAHMAN',
-    'OUTRO'
-  ];
+  List<String> allowedBCRB = [];
+  List<String> allowedInspectors = [];
   List<String> allowedInspectionTypes = [
     'ACIDENTE',
     'ACOMPANHAMENTO',
@@ -69,6 +46,7 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
     _anotationsController = TextEditingController();
     _nameController = TextEditingController();
     _observationsController = TextEditingController();
+    _initializeAsyncData();
   }
 
   @override
@@ -79,6 +57,183 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
     _nameController.dispose();
     _observationsController.dispose();
     super.dispose();
+  }
+
+  Future<List<String>> allowedInspectorsList() async {
+    FirebaseFirestore.instance
+        .collection('inspectors')
+        .snapshots()
+        .listen((QuerySnapshot<Map<String, dynamic>> data) {
+      for (final inspector in data.docs) {
+        allowedInspectors.add(inspector['name']);
+      }
+    });
+
+    return allowedInspectors;
+  }
+
+  Future<List<String>> allowedBCRBList() async {
+    FirebaseFirestore.instance
+        .collection('ships')
+        .snapshots()
+        .listen((QuerySnapshot<Map<String, dynamic>> data) {
+      for (final ship in data.docs) {
+        allowedBCRB.add(ship['shipName']);
+      }
+    });
+
+    return allowedBCRB;
+  }
+
+  void _initializeAsyncData() async {
+    // Operações assíncronas
+    await allowedInspectorsList();
+    await allowedBCRBList();
+    setState(() {});
+  }
+
+  Future<bool> checkBCRB() async {
+    if (!allowedBCRB.contains(_nameController.text.toUpperCase().trim())) {
+      switch (_nameController.text.toUpperCase().trim()) {
+        case 'CD INGA':
+          _nameController = TextEditingController(text: 'CD INGÁ');
+          break;
+        case 'INGÁ':
+          _nameController = TextEditingController(text: 'CD INGÁ');
+          break;
+        case 'INGA':
+          _nameController = TextEditingController(text: 'CD INGÁ');
+          break;
+        case 'CD ICARAI':
+          _nameController = TextEditingController(text: 'CD ICARAÍ');
+          break;
+        case 'ICARAI':
+          _nameController = TextEditingController(text: 'CD ICARAÍ');
+          break;
+        case 'ICARAÍ':
+          _nameController = TextEditingController(text: 'CD ICARAÍ');
+          break;
+        case 'E240':
+          _nameController = TextEditingController(text: 'E-240');
+          break;
+        case 'E 240':
+          _nameController = TextEditingController(text: 'E-240');
+          break;
+        case 'SC42':
+          _nameController = TextEditingController(text: 'SC 42');
+          break;
+        case 'SC-42':
+          _nameController = TextEditingController(text: 'SC 42');
+          break;
+        case 'SC54':
+          _nameController = TextEditingController(text: 'SC 54');
+          break;
+        case 'SC-54':
+          _nameController = TextEditingController(text: 'SC 54');
+          break;
+        case 'ECOMARITIMO':
+          _nameController = TextEditingController(text: 'ECO MARÍTIMO');
+          break;
+        case 'ECOMARÍTIMO':
+          _nameController = TextEditingController(text: 'ECO MARÍTIMO');
+          break;
+        case 'ECO MARITIMO':
+          _nameController = TextEditingController(text: 'ECO MARÍTIMO');
+          break;
+        case 'ECO-MARITIMO':
+          _nameController = TextEditingController(text: 'ECO MARÍTIMO');
+          break;
+        case 'ECO-MARÍTIMO':
+          _nameController = TextEditingController(text: 'ECO MARÍTIMO');
+          break;
+        case 'GUARATUBA 2':
+          _nameController = TextEditingController(text: 'GUARATUBA II');
+          break;
+        case 'GUARATUBAII':
+          _nameController = TextEditingController(text: 'GUARATUBA II');
+          break;
+        case 'GUARATUBA':
+          _nameController = TextEditingController(text: 'GUARATUBA II');
+          break;
+        case 'FLAMENGO':
+          _nameController = TextEditingController(text: 'SM FLAMENGO');
+          break;
+        case 'PRAINHA':
+          _nameController = TextEditingController(text: 'SM PRAINHA');
+          break;
+        case 'VITÓRIA':
+          _nameController = TextEditingController(text: 'SM VITÓRIA');
+          break;
+        case 'VITORIA':
+          _nameController = TextEditingController(text: 'SM VITÓRIA');
+          break;
+        case 'SM VITORIA':
+          _nameController = TextEditingController(text: 'SM VITÓRIA');
+          break;
+        case 'SÃO GONÇALO':
+          _nameController = TextEditingController(text: 'SM SÃO GONÇALO');
+          break;
+        case 'SAO GONCALO':
+          _nameController = TextEditingController(text: 'SM SÃO GONÇALO');
+          break;
+        case 'SM SAO GONCALO':
+          _nameController = TextEditingController(text: 'SM SÃO GONÇALO');
+          break;
+
+        default:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                backgroundColor: Colors.indigo,
+                duration: Duration(seconds: 2),
+                content: Text("Embarcação não registrada")),
+          );
+      }
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Future<bool> checkInspectors() async {
+    if (!allowedInspectors.contains(_inspectorController.text.toUpperCase().trim())) {
+      switch (_inspectorController.text.toUpperCase().trim()) {
+        case 'ALAN PATRÍCIO':
+          _inspectorController = TextEditingController(text: 'ALAN');
+          break;
+        case 'ALAN PATRICIO':
+          _inspectorController = TextEditingController(text: 'ALAN');
+          break;
+        case 'HUGO FABRIS':
+          _inspectorController = TextEditingController(text: 'HUGO');
+          break;
+        case 'NILO ORLANDI':
+          _inspectorController = TextEditingController(text: 'NILO');
+          break;
+        case 'REGINALDO LEITÃO':
+          _inspectorController =
+              TextEditingController(text: 'REGINALDO');
+          break;
+        case 'REGINALDO LEITAO':
+          _inspectorController =
+              TextEditingController(text: 'REGINALDO');
+          break;
+        case 'RAHMAN BEDUIN':
+          _inspectorController =
+              TextEditingController(text: 'RAHMAN');
+          break;
+        default:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                backgroundColor: Colors.indigo,
+                duration: Duration(seconds: 2),
+                content: Text("Inspetor não cadastrado")),
+          );
+      }
+      return false;
+    } 
+    else {
+      return true;
+    }
   }
 
   saveInspection() {
@@ -103,7 +258,7 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
           centerTitle: true,
         ),
         floatingActionButton: FloatingActionButton(
-            onPressed: () {
+            onPressed: () async {
               if (_nameController.text.isEmpty ||
                   _inspectorController.text.isEmpty ||
                   _inspectionTypeController.text.isEmpty ||
@@ -116,152 +271,18 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                 );
                 return;
               }
-              if (!allowedBCRB
-                  .contains(_nameController.text.toUpperCase().trim())) {
-                switch (_nameController.text.toUpperCase().trim()) {
-                  case 'CD INGA':
-                    _nameController = TextEditingController(text: 'CD INGÁ');
-                    break;
-                  case 'INGÁ':
-                    _nameController = TextEditingController(text: 'CD INGÁ');
-                    break;
-                  case 'INGA':
-                    _nameController = TextEditingController(text: 'CD INGÁ');
-                    break;
-                  case 'CD ICARAI':
-                    _nameController = TextEditingController(text: 'CD ICARAÍ');
-                    break;
-                  case 'ICARAI':
-                    _nameController = TextEditingController(text: 'CD ICARAÍ');
-                    break;
-                  case 'ICARAÍ':
-                    _nameController = TextEditingController(text: 'CD ICARAÍ');
-                    break;
-                  case 'E240':
-                    _nameController = TextEditingController(text: 'E-240');
-                    break;
-                  case 'E 240':
-                    _nameController = TextEditingController(text: 'E-240');
-                    break;
-                  case 'SC42':
-                    _nameController = TextEditingController(text: 'SC 42');
-                    break;
-                  case 'SC-42':
-                    _nameController = TextEditingController(text: 'SC 42');
-                    break;
-                  case 'SC54':
-                    _nameController = TextEditingController(text: 'SC 54');
-                    break;
-                  case 'SC-54':
-                    _nameController = TextEditingController(text: 'SC 54');
-                    break;
-                  case 'ECOMARITIMO':
-                    _nameController =
-                        TextEditingController(text: 'ECO MARÍTIMO');
-                    break;
-                  case 'ECOMARÍTIMO':
-                    _nameController =
-                        TextEditingController(text: 'ECO MARÍTIMO');
-                    break;
-                  case 'ECO MARITIMO':
-                    _nameController =
-                        TextEditingController(text: 'ECO MARÍTIMO');
-                    break;
-                  case 'ECO-MARITIMO':
-                    _nameController =
-                        TextEditingController(text: 'ECO MARÍTIMO');
-                    break;
-                  case 'ECO-MARÍTIMO':
-                    _nameController =
-                        TextEditingController(text: 'ECO MARÍTIMO');
-                    break;
-                  case 'GUARATUBA 2':
-                    _nameController =
-                        TextEditingController(text: 'GUARATUBA II');
-                    break;
-                  case 'GUARATUBAII':
-                    _nameController =
-                        TextEditingController(text: 'GUARATUBA II');
-                    break;
-                  case 'GUARATUBA':
-                    _nameController =
-                        TextEditingController(text: 'GUARATUBA II');
-                    break;
-                  case 'FLAMENGO':
-                    _nameController =
-                        TextEditingController(text: 'SM FLAMENGO');
-                    break;
-                  case 'PRAINHA':
-                    _nameController = TextEditingController(text: 'SM PRAINHA');
-                    break;
-                  case 'VITÓRIA':
-                    _nameController = TextEditingController(text: 'SM VITÓRIA');
-                    break;
-                  case 'VITORIA':
-                    _nameController = TextEditingController(text: 'SM VITÓRIA');
-                    break;
-                  case 'SM VITORIA':
-                    _nameController = TextEditingController(text: 'SM VITÓRIA');
-                    break;
-                  case 'SÃO GONÇALO':
-                    _nameController =
-                        TextEditingController(text: 'SM SÃO GONÇALO');
-                    break;
-                  case 'SAO GONCALO':
-                    _nameController =
-                        TextEditingController(text: 'SM SÃO GONÇALO');
-                    break;
-                  case 'SM SAO GONCALO':
-                    _nameController =
-                        TextEditingController(text: 'SM SÃO GONÇALO');
-                    break;
-
-                  default:
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          backgroundColor: Colors.indigo,
-                          duration: Duration(seconds: 2),
-                          content: Text("Embarcação não registrada")),
-                    );
-                }
+              if (await checkBCRB()) {
+                if (await checkInspectors()) {
+                  saveInspection();
               }
-              if (!allowedInspectors
-                  .contains(_inspectorController.text.toUpperCase().trim())) {
-                switch (_inspectorController.text.toUpperCase().trim()) {
-                  case 'ALAN PATRÍCIO':
-                    _inspectorController = TextEditingController(text: 'ALAN');
-                    break;
-                  case 'ALAN PATRICIO':
-                    _inspectorController = TextEditingController(text: 'ALAN');
-                    break;
-                  case 'HUGO FABRIS':
-                    _inspectorController = TextEditingController(text: 'HUGO');
-                    break;
-                  case 'NILO ORLANDI':
-                    _inspectorController = TextEditingController(text: 'NILO');
-                    break;
-                  case 'REGINALDO LEITÃO':
-                    _inspectorController =
-                        TextEditingController(text: 'REGINALDO');
-                    break;
-                  case 'REGINALDO LEITAO':
-                    _inspectorController =
-                        TextEditingController(text: 'REGINALDO');
-                    break;
-                  case 'RAHMAN BEDUIN':
-                    _inspectorController =
-                        TextEditingController(text: 'RAHMAN');
-                    break;
-                  default:
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          backgroundColor: Colors.indigo,
-                          duration: Duration(seconds: 2),
-                          content: Text("Inspetor não cadastrado")),
-                    );
-                }
+              
               } else {
-                saveInspection();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      backgroundColor: Colors.indigo,
+                      duration: Duration(seconds: 2),
+                      content: Text("Confira os campos")),
+                );
               }
             },
             child: const Icon(Icons.save)),
@@ -354,117 +375,144 @@ class _AddInspectionPageState extends State<AddInspectionPage> {
                     height: 15,
                   ),
                   ElevatedButton(
-                    onPressed: () async {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) => const AlertDialog(
-                        title: Text('Upload em progresso'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            LinearProgressIndicator(), // Barra de progresso
-                            SizedBox(height: 16),
-                            Text('Aguarde enquanto o arquivo está sendo carregado...'),
-                          ],
-                        ),
-                      ),
-                    );
-                    
-                    final result = await fileManagement.pickFiles("certificado");
-                    
-                    try {
-                      if (result != null) {
-                        final effectiveInspectionDate = inspectionDate ?? DateTime.now();
-                        final upload = await fileManagement.uploaAndGetUrl(result, "certificados", effectiveInspectionDate, _nameController.text)
-                        .whenComplete(
-                          () => ScaffoldMessenger.of(context).showSnackBar(
+                      onPressed: () async {
+                        var bcrb = await checkBCRB();
+                        if (bcrb) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                const AlertDialog(
+                              title: Text('Upload em progresso'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  LinearProgressIndicator(), // Barra de progresso
+                                  SizedBox(height: 16),
+                                  Text(
+                                      'Aguarde enquanto o arquivo está sendo carregado...'),
+                                ],
+                              ),
+                            ),
+                          );
+
+                          final result =
+                              await fileManagement.pickFiles("certificado");
+
+                          try {
+                            if (result != null) {
+                              final effectiveInspectionDate =
+                                  inspectionDate ?? DateTime.now();
+                              final upload = await fileManagement
+                                  .uploaAndGetUrl(
+                                      result,
+                                      "certificados",
+                                      effectiveInspectionDate,
+                                      _nameController.text)
+                                  .whenComplete(() =>
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          backgroundColor: Colors.indigo,
+                                          duration: Duration(seconds: 2),
+                                          content: Text("Upload concluído"),
+                                        ),
+                                      ));
+                              setState(() {
+                                certificateUrl = upload;
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: Colors.indigo,
+                                  duration: Duration(seconds: 2),
+                                  content: Text("Upload cancelado"),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            print(e);
+                          } finally {
+                            Navigator.pop(
+                                context); // Feche o diálogo de progresso
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                            backgroundColor: Colors.indigo,
-                            duration: Duration(seconds: 2),
-                            content: Text("Upload concluído"),
-                          ),
-                        )); 
-                        setState(() {
-                          certificateUrl = upload;
-                        });                    
-                      } 
-                      else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Colors.indigo,
-                            duration: Duration(seconds: 2),
-                            content: Text("Upload cancelado"),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      print(e);
-                    } finally {
-                      Navigator.pop(context); // Feche o diálogo de progresso
-                    }
-                  },
-                  child: Text(certificateUrl == null
-                      ? "Selecionar Certificado"
-                      : certificateUrl!.toString())
-                ),
+                              backgroundColor: Colors.indigo,
+                              duration: Duration(seconds: 2),
+                              content: Text(
+                                  "Insira corretamente o nome da barcaça ou rebocador"),
+                            ),
+                          );
+                        }
+                      },
+                      child: Text(certificateUrl == null
+                          ? "Selecionar Certificado"
+                          : certificateUrl!.toString())),
                   const SizedBox(
                     height: 15,
                   ),
                   ElevatedButton(
-                    onPressed: () async {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) => const AlertDialog(
-                        title: Text('Upload em progresso'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            LinearProgressIndicator(), // Barra de progresso
-                            SizedBox(height: 16),
-                            Text('Aguarde enquanto o arquivo está sendo carregado...'),
-                          ],
-                        ),
-                      ),
-                    );
-                    
-                    final result = await fileManagement.pickFiles("checklist");
-                    
-                    try {
-                      if (result != null) {
-                        final effectiveInspectionDate = inspectionDate ?? DateTime.now();
-                        final upload = await fileManagement.uploaAndGetUrl(result, "checklists", effectiveInspectionDate, _nameController.text)
-                        .whenComplete(
-                          () => 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                            backgroundColor: Colors.indigo,
-                            duration: Duration(seconds: 2),
-                            content: Text("Upload concluído"),
-                          ),
-                        ));
-                        setState(() {
-                          checklistUrl = upload;
-                        });                 
-                      } 
-                      else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Colors.indigo,
-                            duration: Duration(seconds: 2),
-                            content: Text("Upload cancelado"),
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => const AlertDialog(
+                            title: Text('Upload em progresso'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                LinearProgressIndicator(), // Barra de progresso
+                                SizedBox(height: 16),
+                                Text(
+                                    'Aguarde enquanto o arquivo está sendo carregado...'),
+                              ],
+                            ),
                           ),
                         );
-                      }
-                    } catch (e) {
-                      print(e);
-                    } finally {
-                      Navigator.pop(context); // Feche o diálogo de progresso
-                    }
-                  },
-                  child: Text(checklistUrl == null
-                      ? "Selecionar Checklist"
-                      : checklistUrl!.toString())
-                ),
+
+                        final result =
+                            await fileManagement.pickFiles("checklist");
+
+                        try {
+                          if (result != null) {
+                            final effectiveInspectionDate =
+                                inspectionDate ?? DateTime.now();
+                            final upload = await fileManagement
+                                .uploaAndGetUrl(
+                                    result,
+                                    "checklists",
+                                    effectiveInspectionDate,
+                                    _nameController.text)
+                                .whenComplete(() =>
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        backgroundColor: Colors.indigo,
+                                        duration: Duration(seconds: 2),
+                                        content: Text("Upload concluído"),
+                                      ),
+                                    ));
+                            setState(() {
+                              checklistUrl = upload;
+                            });
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: Colors.indigo,
+                                duration: Duration(seconds: 2),
+                                content: Text("Upload cancelado"),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          print(e);
+                        } finally {
+                          Navigator.pop(
+                              context); // Feche o diálogo de progresso
+                        }
+                      },
+                      child: Text(checklistUrl == null
+                          ? "Selecionar Checklist"
+                          : checklistUrl!.toString())),
                   const SizedBox(
                     height: 15,
                   ),
