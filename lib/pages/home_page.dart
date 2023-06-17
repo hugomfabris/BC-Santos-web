@@ -1,7 +1,9 @@
 import 'package:bcsantos/controllers/inspection_controller.dart';
 import 'package:bcsantos/models/plan.dart';
+import 'package:chips_choice/chips_choice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../components/content.dart';
 import '../components/inspection_tile.dart';
 import 'add_inspection_page.dart';
 import '../services/file_management.dart';
@@ -315,6 +317,79 @@ class _MyHomePageState extends State<MyHomePage> {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Wrap(
+                    children: <Widget>[
+                      Visibility(
+                          visible: bcChipsVisibility,
+                          child: Content(
+                            child: ChipsChoice<String>.single(
+                              value: selectedFilter,
+                              onChanged: (val) => setState(() {
+                                if (val == selectedFilter) {
+                                  //removing filter
+                                  inspectionController.clearFilters();
+                                  selectedFilter = null;
+                                } else if (selectedFilter == null) {
+                                  //adding filter
+                                  selectedFilter = val;
+                                  inspectionController.setBCFilter(val);
+                                } else {
+                                  inspectionController.clearFilters();
+                                  selectedFilter = val;
+                                  inspectionController.setBCFilter(val);
+                                }
+                              }),
+                              choiceItems: C2Choice.listFrom<String, String>(
+                                source: inspectionController.shipNameChips,
+                                value: (i, v) => v,
+                                label: (i, v) => v,
+                              ),
+                              choiceStyle: C2ChipStyle.filled(
+                                selectedStyle: const C2ChipStyle(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(5),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )),
+                      Visibility(
+                          visible: inspectorChipsVisibility,
+                          child: Content(
+                            child: ChipsChoice<String>.single(
+                              value: selectedFilter,
+                              onChanged: (val) => setState(() {
+                                if (val == selectedFilter) {
+                                  //removing filter
+                                  inspectionController.clearFilters();
+                                  selectedFilter = null;
+                                } else if (selectedFilter == null) {
+                                  //adding filter
+                                  selectedFilter = val;
+                                  inspectionController.setInspectorFilter(val);
+                                } 
+                                else {
+                                  inspectionController.clearFilters();
+                                  selectedFilter = val;
+                                  inspectionController.setInspectorFilter(val);
+                                }
+                              }),
+                              choiceItems: C2Choice.listFrom<String, String>(
+                                source: inspectionController.inspectorChips,
+                                value: (i, v) => v,
+                                label: (i, v) => v,
+                              ),
+                              choiceStyle: C2ChipStyle.filled(
+                                selectedStyle: const C2ChipStyle(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(5),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )),
+                    ],
+                  ),
                   Expanded(
                       child: ListView.builder(
                     itemCount: inspectionController.inspections.length,
