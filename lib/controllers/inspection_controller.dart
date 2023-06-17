@@ -16,7 +16,9 @@ class InspectionController extends ChangeNotifier {
   }
 
   StreamSubscription<QuerySnapshot>? _inspectionsSubscription;
-  final List<Inspection> _inspections = [];
+  late List<Inspection> _inspections = [];
+  final List<String> inspectorChips = ['SEM INSPEÇÕES'];
+  final List<String> shipNameChips = ['SEM INSPEÇÕES'];
   CollectionReference? inspectionsRef;
 
   void init() {
@@ -29,6 +31,7 @@ class InspectionController extends ChangeNotifier {
         final inspection = Inspection.fromDocument(document);
         inspections.add(inspection);
       }
+      chipsFilling();
       _inspections
           .sort((a, b) => b.inspectionDate!.compareTo(a.inspectionDate!));
       notifyListeners();
@@ -37,10 +40,27 @@ class InspectionController extends ChangeNotifier {
 
   List<Inspection> get inspections => _inspections;
 
-  // set inspections(List<Inspection> inspections) {
-  //   _inspections = inspections;
-  //   notifyListeners();
-  // }
+  set inspections(List<Inspection> inspections) {
+    _inspections = inspections;
+    notifyListeners();
+  }
+
+  void chipsFilling() {
+    if (_inspections.isEmpty) {
+      // return nothing
+    } else {
+      inspectorChips.clear();
+      shipNameChips.clear();
+      for (final inspection in _inspections) {
+        if (!inspectorChips.contains(inspection.inspector!)) {
+          inspectorChips.add(inspection.inspector!);
+        }
+        if (!shipNameChips.contains(inspection.shipName!)) {
+          shipNameChips.add(inspection.shipName!);
+        }
+      }
+    }
+  }
 
   addInspection(Inspection inspection) {
     inspections.add(inspection);
@@ -69,9 +89,8 @@ class InspectionController extends ChangeNotifier {
         } catch (e) {
           print(e);
         }
-      }
-      else {
-        print('Certificado não encontrado');
+      } else {
+        // No certificate to delete
       }
       if (inspection.checklist != null) {
         final fileToDelete = storageRef.child(
@@ -81,6 +100,8 @@ class InspectionController extends ChangeNotifier {
         } catch (e) {
           print(e);
         }
+      } else {
+        // No checklist to delete
       }
       // Delete the document inside the Firebase Firestore
       await FirebaseFirestore.instance
@@ -91,10 +112,35 @@ class InspectionController extends ChangeNotifier {
       // Remove the inspection from the local list and notify listeners
       inspections.remove(inspection);
       notifyListeners();
-
-      print('Inspection deleted');
     } catch (e) {
       print(e);
     }
+    if (inspections.isEmpty) {
+      inspectorChips.clear();
+      shipNameChips.clear();
+      inspectorChips.add('SEM INSPEÇÕES');
+      shipNameChips.add('SEM INSPEÇÕES');
+    } else {
+      chipsFilling();
+    }
+  }
+
+  clearFilters() {
+    _inspections = [];
+    init();
+    notifyListeners();
+  }
+
+  setBCFilter(String name) {
+    _inspections =
+        _inspections.where((element) => element.shipName == name).toList();
+    notifyListeners();
+  }
+
+  setInspectorFilter(String inspector) {
+    _inspections = _inspections
+        .where((element) => element.inspector == inspector)
+        .toList();
+    notifyListeners();
   }
 }
