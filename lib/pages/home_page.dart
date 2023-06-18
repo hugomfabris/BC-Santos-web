@@ -284,55 +284,51 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () => _showMenu(context),
-        ),
-        title: Text(widget.title),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: isLogged ?  const Icon(Icons.person) :  const Icon(Icons.login),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const Login(),
-                ),
-              );
-              // Acessando o estado do aplicativo
-              final appState = context.read<ApplicationState>();
-              if (appState.loggedIn) {
-                // Usuário já está logado
-                isLogged = true;
-              } else {
-                // Usuário não está logado
-                isLogged = false;
-              }
-            },
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => _showMenu(context),
           ),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          if (constraints.maxWidth <= 900) {
-            return _buildLayout('mobile');
-          } else if (constraints.maxWidth <= 1200) {
-            return _buildLayout('tablet');
-          } else {
-            return _buildLayout('desktop');
-          }
-        },
-      ),
-      floatingActionButton: Visibility(
-        visible: isLogged,
-        child:
-          FloatingActionButton(
-          onPressed: () => _addInspection(context),
-          child: const Icon(Icons.add),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
-    ));
+          title: Text(widget.title),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () {
+                final appState = context.read<ApplicationState>();
+                if (appState.loggedIn) {
+                  // Usuário já está logado
+                  isLogged = true;
+                } else {
+                  // Usuário não está logado
+                  isLogged = false;
+                }
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const Login(),
+                  fullscreenDialog: true));
+              },
+              icon:
+                  isLogged ? const Icon(Icons.person) : const Icon(Icons.login),
+            ),
+          ],
+        ),
+        body: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            if (constraints.maxWidth <= 900) {
+              return _buildLayout('mobile');
+            } else if (constraints.maxWidth <= 1200) {
+              return _buildLayout('tablet');
+            } else {
+              return _buildLayout('desktop');
+            }
+          },
+        ),
+        floatingActionButton: Visibility(
+          visible: isLogged,
+          child: FloatingActionButton(
+            onPressed: () => _addInspection(context),
+            child: const Icon(Icons.add),
+          ), // This trailing comma makes auto-formatting nicer for build methods.
+        ));
   }
 
   Widget _buildLayout(String platform) {
