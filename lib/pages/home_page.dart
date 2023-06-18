@@ -2,9 +2,14 @@ import 'package:bcsantos/controllers/inspection_controller.dart';
 import 'package:bcsantos/models/plan.dart';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../app_state.dart';
+import '../authentication.dart';
 import '../components/content.dart';
 import '../components/inspection_tile.dart';
+import 'login.dart';
 import 'add_inspection_page.dart';
 import '../services/file_management.dart';
 
@@ -41,6 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
               inspectionController: inspectionController,
             ),
         fullscreenDialog: true));
+  }
+
+  void loginPage(BuildContext context) {
+    Navigator.of(context).pushNamed('/sign-in');
   }
 
   void _showMenu(BuildContext context) {
@@ -284,9 +293,23 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.login),
+            icon: isLogged ?  const Icon(Icons.person) :  const Icon(Icons.login),
             onPressed: () {
-              setState(() {});
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Login(),
+                ),
+              );
+              // Acessando o estado do aplicativo
+              final appState = context.read<ApplicationState>();
+              if (appState.loggedIn) {
+                // Usuário já está logado
+                isLogged = true;
+              } else {
+                // Usuário não está logado
+                isLogged = false;
+              }
             },
           ),
         ],
@@ -302,11 +325,14 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _addInspection(context),
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+      floatingActionButton: Visibility(
+        visible: isLogged,
+        child:
+          FloatingActionButton(
+          onPressed: () => _addInspection(context),
+          child: const Icon(Icons.add),
+        ), // This trailing comma makes auto-formatting nicer for build methods.
+    ));
   }
 
   Widget _buildLayout(String platform) {
@@ -367,8 +393,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   //adding filter
                                   selectedFilter = val;
                                   inspectionController.setInspectorFilter(val);
-                                } 
-                                else {
+                                } else {
                                   inspectionController.clearFilters();
                                   selectedFilter = val;
                                   inspectionController.setInspectorFilter(val);
