@@ -1,3 +1,4 @@
+import 'package:bcsantos/pages/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
@@ -5,12 +6,11 @@ import 'package:bcsantos/pages/home_page.dart';
 import 'package:provider/provider.dart';
 import 'app_state.dart';
 import 'package:go_router/go_router.dart';
-import 'firebase_options.dart'; 
+import 'firebase_options.dart';
 
-Future<void> main() async  {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
     builder: ((context, child) => const MyApp()),
@@ -24,42 +24,9 @@ final _router = GoRouter(
       builder: (context, state) => const MyHomePage(title: 'BC SANTOS'),
       routes: [
         GoRoute(
-          path: 'sign-in',
+          path: 'login',
           builder: (context, state) {
-            return SignInScreen(
-              actions: [
-                ForgotPasswordAction(((context, email) {
-                  final uri = Uri(
-                    path: '/sign-in/forgot-password',
-                    queryParameters: <String, String?>{
-                      'email': email,
-                    },
-                  );
-                  context.push(uri.toString());
-                })),
-                AuthStateChangeAction(((context, state) {
-                  if (state is SignedIn || state is UserCreated) {
-                    var user = (state is SignedIn)
-                        ? state.user
-                        : (state as UserCreated).credential.user;
-                    if (user == null) {
-                      return;
-                    }
-                    if (state is UserCreated) {
-                      user.updateDisplayName(user.email!.split('@')[0]);
-                    }
-                    if (!user.emailVerified) {
-                      user.sendEmailVerification();
-                      const snackBar = SnackBar(
-                          content: Text(
-                              'Please check your email to verify your email address'));
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }
-                    context.pushReplacement('/');
-                  }
-                })),
-              ],
-            );
+            return const Login();
           },
           routes: [
             GoRoute(
@@ -74,6 +41,12 @@ final _router = GoRouter(
             ),
           ],
         ),
+        GoRoute(
+              path: 'home',
+              builder: (context, state) {
+                return const MyHomePage(title: 'BC SANTOS');
+              },
+            ),
         GoRoute(
           path: 'profile',
           builder: (context, state) {
@@ -97,13 +70,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  return MaterialApp.router(
-    debugShowCheckedModeBanner: false,
-    title: 'BC SANTOS',
-    theme: ThemeData(
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'BC SANTOS',
+      theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-    routerConfig: _router,
-  );
+      routerConfig: _router,
+    );
   }
 }
