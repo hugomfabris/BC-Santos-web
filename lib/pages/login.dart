@@ -134,19 +134,22 @@ class _LoginState extends State<Login> {
                           onPressed: () {
                             _formKey.currentState?.reset();
                             GoRouter.of(context).go('/');
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return const MyHomePage(title: 'BC SANTOS');
-                                },
-                              ),
-                            );
                           },
                           child: const Text("Retornar"),
                         ),
-                      ],
+                      ], 
                     ),
+                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Esqueceu a senha?"),
+                        TextButton(
+                          onPressed: () {
+                            GoRouter.of(context).go('/forgot-password');
+                          },
+                          child: const Text("Resetar"),
+                          ),
+                        ])
                   ],
                 ),
               ],
