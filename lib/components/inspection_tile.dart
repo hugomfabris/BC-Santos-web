@@ -1,8 +1,10 @@
+import 'package:bcsantos/app_state.dart';
 import 'package:bcsantos/services/file_management.dart';
 import 'package:flutter/material.dart';
 import 'package:bcsantos/controllers/inspection_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:bcsantos/models/inspection.dart';
+import 'package:provider/provider.dart';
 
 class InspectionTile extends StatefulWidget {
   final Inspection inspection;
@@ -136,15 +138,21 @@ class InspectionTileState extends State<InspectionTile> {
                               ],
                             ),
                             actions: [
-                              TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      widget.inspectionController
-                                          .deleteInspection(widget.inspection);
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Deletar')),
+                              Consumer<ApplicationState>(
+                                  builder: (context, appState, _) =>
+                                    Visibility(
+                                  visible: appState.loggedIn,
+                                  child: 
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          widget.inspectionController
+                                              .deleteInspection(widget.inspection);
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('Deletar')))),
+                                
                               TextButton(
                                   onPressed: () {
                                     Navigator.pop(context);
