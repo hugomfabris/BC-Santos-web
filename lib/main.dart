@@ -28,25 +28,24 @@ final _router = GoRouter(
           builder: (context, state) {
             return const Login();
           },
-          routes: [
-            GoRoute(
-              path: 'forgot-password',
-              builder: (context, state) {
-                final arguments = state.queryParameters;
-                return ForgotPasswordScreen(
-                  email: arguments['email'],
-                  headerMaxExtent: 200,
-                );
-              },
-            ),
-          ],
+        ),
+        // Adicione a rota "forgot-password" fora da rota de login
+        GoRoute(
+          path: 'forgot-password',
+          builder: (context, state) {
+            final arguments = state.queryParameters;
+            return ForgotPasswordScreen(
+              email: arguments['email'],
+              headerMaxExtent: 200,
+            );
+          },
         ),
         GoRoute(
-              path: 'home',
-              builder: (context, state) {
-                return const MyHomePage(title: 'BC SANTOS');
-              },
-            ),
+          path: 'home',
+          builder: (context, state) {
+            return const MyHomePage(title: 'BC SANTOS');
+          },
+        ),
         GoRoute(
           path: 'profile',
           builder: (context, state) {
