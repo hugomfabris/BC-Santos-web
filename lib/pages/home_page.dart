@@ -27,7 +27,6 @@ class _MyHomePageState extends State<MyHomePage> {
   bool bcChipsVisibility = false;
   bool inspectorChipsVisibility = false;
   String? selectedFilter;
-  
 
   @override
   void initState() {
@@ -46,11 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
         fullscreenDialog: true));
   }
 
-  void loginPage(BuildContext context) {
-    Navigator.of(context).pushNamed('/sign-in');
-  }
-
-  void _showMenu(BuildContext context) {
+  void _showMenu(BuildContext context, bool loggedIn) {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox;
@@ -67,65 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       position: position,
       items: [
-        PopupMenuItem(
-          child: ListTile(
-            title: const Text('Plano de ação das Barcaças'),
-            onTap: () async {
-              try {
-                final querySnapshot = await FirebaseFirestore.instance
-                    .collection('plans')
-                    .where('type', isEqualTo: 'barcaças')
-                    .get();
-                if (querySnapshot.size > 0) {
-                  final document = querySnapshot.docs[0];
-                  planBC = Plan.fromDocument(document);
-                  fileManagement.openFile(planBC.url);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        backgroundColor: Colors.indigo,
-                        duration: Duration(seconds: 2),
-                        content: Text(
-                            'Plano de ação das barcaças não encontrado, por favor atualizar')),
-                  );
-                }
-              } catch (e) {
-                print(e);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      backgroundColor: Colors.indigo,
-                      duration: Duration(seconds: 2),
-                      content: Text(
-                          'Plano de ação das barcaças não encontrado, por favor atualizar')),
-                );
-              }
-            },
-          ),
-        ),
-        PopupMenuItem(
-          child: ListTile(
-            title: const Text('Plano de ação das Rebocadores'),
-            onTap: () async {
-              final querySnapshot = await FirebaseFirestore.instance
-                  .collection('plans')
-                  .where('type', isEqualTo: 'rebocadores')
-                  .get();
-              if (querySnapshot.size > 0) {
-                final document = querySnapshot.docs[0];
-                planRB = Plan.fromDocument(document);
-                fileManagement.openFile(planRB.url);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      backgroundColor: Colors.indigo,
-                      duration: Duration(seconds: 2),
-                      content: Text(
-                          'Plano de ação dos rebocadores não encontrado, por favor atualizar')),
-                );
-              }
-            },
-          ),
-        ),
+              if (loggedIn) ...[
         PopupMenuItem(
           child: ListTile(
             title: const Text('Atualizar Plano de ação das Barcaças'),
@@ -185,94 +122,180 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ),
-        PopupMenuItem(
-          child: ListTile(
-            title: const Text('Atualizar Plano de ação dos Rebocadores'),
-            onTap: () async {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => const AlertDialog(
-                  title: Text('Upload em progresso'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      LinearProgressIndicator(), // Barra de progresso
-                      SizedBox(height: 16),
-                      Text(
-                          'Aguarde enquanto o arquivo está sendo carregado...'),
-                    ],
+          PopupMenuItem(
+            child: ListTile(
+              title: const Text('Atualizar Plano de ação dos Rebocadores'),
+              onTap: () async {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => const AlertDialog(
+                    title: Text('Upload em progresso'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        LinearProgressIndicator(), // Barra de progresso
+                        SizedBox(height: 16),
+                        Text(
+                            'Aguarde enquanto o arquivo está sendo carregado...'),
+                      ],
+                    ),
                   ),
-                ),
-              );
+                );
 
-              setState(() {
-                bcChipsVisibility = false;
-                inspectorChipsVisibility = false;
-              });
+                setState(() {
+                  bcChipsVisibility = false;
+                  inspectorChipsVisibility = false;
+                });
 
-              try {
-                final result = await fileManagement
-                    .pickFiles("Plano de ação dos rebocadores");
-                final String upload =
-                    await fileManagement.uploaAndGetUrl(result, 'rebocadores');
-                planRB.url = upload;
+                try {
+                  final result = await fileManagement
+                      .pickFiles("Plano de ação dos rebocadores");
+                  final String upload =
+                      await fileManagement.uploaAndGetUrl(result, 'rebocadores');
+                  planRB.url = upload;
 
-                await fileManagement
-                    .updateUrl('rebocadores', upload)
-                    .whenComplete(
-                      () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                  await fileManagement
+                      .updateUrl('rebocadores', upload)
+                      .whenComplete(
+                        () => ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.indigo,
+                            duration: Duration(seconds: 2),
+                            content: Text(
+                                'Plano de ação dos rebocadores atualizado com sucesso'),
+                          ),
+                        ),
+                      ); // Atualiza a URL no Firestore
+
+                  // Atualize a interface do usuário com base no resultado do upload
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      backgroundColor: Colors.indigo,
+                      duration: Duration(seconds: 2),
+                      content: Text(
+                          'Erro ao atualizar o plano de ação dos rebocadores, por favor tente novamente'),
+                    ),
+                  );
+                } finally {
+                  Navigator.pop(context); // Feche o diálogo de progresso
+                }
+              },
+            ),
+          ),
+        ],
+        PopupMenuItem(
+            child: ListTile(
+              title: const Text('Plano de ação das Barcaças'),
+              onTap: () async {
+                try {
+                  final querySnapshot = await FirebaseFirestore.instance
+                      .collection('plans')
+                      .where('type', isEqualTo: 'barcaças')
+                      .get();
+                  if (querySnapshot.size > 0) {
+                    final document = querySnapshot.docs[0];
+                    planBC = Plan.fromDocument(document);
+                    fileManagement.openFile(planBC.url);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
                           backgroundColor: Colors.indigo,
                           duration: Duration(seconds: 2),
                           content: Text(
-                              'Plano de ação dos rebocadores atualizado com sucesso'),
-                        ),
-                      ),
-                    ); // Atualiza a URL no Firestore
-
-                // Atualize a interface do usuário com base no resultado do upload
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    backgroundColor: Colors.indigo,
-                    duration: Duration(seconds: 2),
-                    content: Text(
-                        'Erro ao atualizar o plano de ação dos rebocadores, por favor tente novamente'),
-                  ),
-                );
-              } finally {
-                Navigator.pop(context); // Feche o diálogo de progresso
-              }
-            },
+                              'Plano de ação das barcaças não encontrado, por favor atualizar')),
+                    );
+                  }
+                } catch (e) {
+                  print(e);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        backgroundColor: Colors.indigo,
+                        duration: Duration(seconds: 2),
+                        content: Text(
+                            'Plano de ação das barcaças não encontrado, por favor atualizar')),
+                  );
+                }
+              },
+            ),
           ),
-        ),
         PopupMenuItem(
-          child: ListTile(
-            title: const Text('Filtro por Embarcações'),
-            onTap: () {
-              setState(() {
-                bcChipsVisibility = !bcChipsVisibility;
-                inspectorChipsVisibility = false;
-              });
-              Navigator.pop(context);
-            },
+            child: ListTile(
+              title: const Text('Plano de ação das Rebocadores'),
+              onTap: () async {
+                final querySnapshot = await FirebaseFirestore.instance
+                    .collection('plans')
+                    .where('type', isEqualTo: 'rebocadores')
+                    .get();
+                if (querySnapshot.size > 0) {
+                  final document = querySnapshot.docs[0];
+                  planRB = Plan.fromDocument(document);
+                  fileManagement.openFile(planRB.url);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        backgroundColor: Colors.indigo,
+                        duration: Duration(seconds: 2),
+                        content: Text(
+                            'Plano de ação dos rebocadores não encontrado, por favor atualizar')),
+                  );
+                }
+              },
+            ),
           ),
-        ),
-        PopupMenuItem(
-          child: ListTile(
-            title: const Text('Filtro por Inspetores'),
-            onTap: () {
-              setState(() {
-                inspectorChipsVisibility = !inspectorChipsVisibility;
-                bcChipsVisibility = false;
-              });
-              Navigator.pop(context);
-            },
+          PopupMenuItem(
+            child: ListTile(
+              title: const Text('Filtro por Embarcações'),
+              onTap: () {
+                setState(() {
+                  bcChipsVisibility = !bcChipsVisibility;
+                  inspectorChipsVisibility = false;
+                });
+                Navigator.pop(context);
+              },
+            ),
           ),
-        ),
-      ],
+          PopupMenuItem(
+            child: ListTile(
+              title: const Text('Filtro por Inspetores'),
+              onTap: () {
+                setState(() {
+                  inspectorChipsVisibility = !inspectorChipsVisibility;
+                  bcChipsVisibility = false;
+                });
+                Navigator.pop(context);
+              },
+            ),
+          )]
     );
   }
+
+  // void _showMenu(BuildContext context) {
+  //   final RenderBox button = context.findRenderObject() as RenderBox;
+  //   final RenderBox overlay =
+  //       Overlay.of(context).context.findRenderObject() as RenderBox;
+  //   final RelativeRect position = RelativeRect.fromRect(
+  //     Rect.fromPoints(
+  //       button.localToGlobal(Offset.zero, ancestor: overlay),
+  //       button.localToGlobal(button.size.bottomRight(Offset.zero),
+  //           ancestor: overlay),
+  //     ),
+  //     Offset.zero & overlay.size,
+  //   );
+  //   final appState = Provider.of<ApplicationState>(context);
+  //   final menuItems = Consumer<ApplicationState>(
+  //     builder: (constext, appState, _) {
+  //       return [
+  
+  //     showMenu(
+  //       context: context,
+  //       position: position,
+  //       items: menuItems,
+  //     );
+  //     }
+  //   )
+
+  // }
 
   @override
   void dispose() {
@@ -283,57 +306,55 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final appState = Provider.of<ApplicationState>(context);
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => _showMenu(context),
-          ),
-          title: Text(widget.title),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              onPressed: () {
-                
-                if (appState.loggedIn) {
-                  // Usuário está logado
-                  GoRouter.of(context).go('/profile');
-                } else {
-                  // Usuário não está logado
-                  GoRouter.of(context).go('/login');
-                }
-              },
-             icon: Consumer<ApplicationState>(
-          builder: (context, appState, _) {
-            return appState.loggedIn
-                ? const Icon(Icons.person)
-                : const Icon(Icons.login);
-          },
-            )),
-          ],
-        ),
-        body: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            if (constraints.maxWidth <= 900) {
-              return _buildLayout('mobile');
-            } else if (constraints.maxWidth <= 1200) {
-              return _buildLayout('tablet');
+      appBar: AppBar(
+        leading: Consumer<ApplicationState>(builder: (context, appState, _) {
+          return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => _showMenu(context, appState.loggedIn));
+        }),
+        title: Text(widget.title),
+        centerTitle: true,
+        actions: [
+          IconButton(onPressed: () {
+            if (appState.loggedIn) {
+              // Usuário está logado
+              GoRouter.of(context).go('/profile');
             } else {
-              return _buildLayout('desktop');
+              // Usuário não está logado
+              GoRouter.of(context).go('/login');
             }
-          },
-        ),
-        floatingActionButton: Consumer<ApplicationState>(
-          builder: (context, appState, _) {
-            return Visibility(
-              visible: appState.loggedIn,
-              child: FloatingActionButton(
-                onPressed: () => _addInspection(context),
-                child: const Icon(Icons.add),
-              ),
-            );
-          },
-),
-);
+          }, icon: Consumer<ApplicationState>(
+            builder: (context, appState, _) {
+              return appState.loggedIn
+                  ? const Icon(Icons.person)
+                  : const Icon(Icons.login);
+            },
+          )),
+        ],
+      ),
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          if (constraints.maxWidth <= 900) {
+            return _buildLayout('mobile');
+          } else if (constraints.maxWidth <= 1200) {
+            return _buildLayout('tablet');
+          } else {
+            return _buildLayout('desktop');
+          }
+        },
+      ),
+      floatingActionButton: Consumer<ApplicationState>(
+        builder: (context, appState, _) {
+          return Visibility(
+            visible: appState.loggedIn,
+            child: FloatingActionButton(
+              onPressed: () => _addInspection(context),
+              child: const Icon(Icons.add),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildLayout(String platform) {
