@@ -2,14 +2,12 @@ import 'package:bcsantos/controllers/inspection_controller.dart';
 import 'package:bcsantos/models/plan.dart';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../app_state.dart';
-import '../authentication.dart';
 import '../components/content.dart';
 import '../components/inspection_tile.dart';
-import 'login.dart';
 import 'add_inspection_page.dart';
 import '../services/file_management.dart';
 
@@ -28,8 +26,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late FileManagement fileManagement;
   bool bcChipsVisibility = false;
   bool inspectorChipsVisibility = false;
-  bool isLogged = false;
   String? selectedFilter;
+  
 
   @override
   void initState() {
@@ -283,6 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<ApplicationState>(context);
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -294,21 +293,22 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: [
             IconButton(
               onPressed: () {
-                final appState = context.read<ApplicationState>();
+                
                 if (appState.loggedIn) {
-                  // Usuário já está logado
-                  isLogged = true;
+                  // Usuário está logado
+                  GoRouter.of(context).go('/profile');
                 } else {
                   // Usuário não está logado
-                  isLogged = false;
+                  GoRouter.of(context).go('/login');
                 }
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Login(),
-                  fullscreenDialog: true));
               },
-              icon:
-                  isLogged ? const Icon(Icons.person) : const Icon(Icons.login),
-            ),
+             icon: Consumer<ApplicationState>(
+          builder: (context, appState, _) {
+            return appState.loggedIn
+                ? const Icon(Icons.person)
+                : const Icon(Icons.login);
+          },
+            )),
           ],
         ),
         body: LayoutBuilder(
@@ -322,13 +322,18 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           },
         ),
-        floatingActionButton: Visibility(
-          visible: isLogged,
-          child: FloatingActionButton(
-            onPressed: () => _addInspection(context),
-            child: const Icon(Icons.add),
-          ), // This trailing comma makes auto-formatting nicer for build methods.
-        ));
+        floatingActionButton: Consumer<ApplicationState>(
+          builder: (context, appState, _) {
+            return Visibility(
+              visible: appState.loggedIn,
+              child: FloatingActionButton(
+                onPressed: () => _addInspection(context),
+                child: const Icon(Icons.add),
+              ),
+            );
+          },
+),
+);
   }
 
   Widget _buildLayout(String platform) {
