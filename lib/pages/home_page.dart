@@ -26,6 +26,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late FileManagement fileManagement;
   bool bcChipsVisibility = false;
   bool inspectorChipsVisibility = false;
+  bool inspectionTypesChipsVisibility = false;
   String? selectedFilter;
 
   @override
@@ -58,11 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
       Offset.zero & overlay.size,
     );
 
-    showMenu(
-      context: context,
-      position: position,
-      items: [
-              if (loggedIn) ...[
+    showMenu(context: context, position: position, items: [
+      if (loggedIn) ...[
         PopupMenuItem(
           child: ListTile(
             title: const Text('Atualizar Plano de ação das Barcaças'),
@@ -86,6 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 bcChipsVisibility = false;
                 inspectorChipsVisibility = false;
+                inspectionTypesChipsVisibility = false;
               });
 
               try {
@@ -108,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 // Atualize a interface do usuário com base no resultado do upload
               } catch (e) {
+                print(e);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     backgroundColor: Colors.indigo,
@@ -122,152 +122,169 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ),
-          PopupMenuItem(
-            child: ListTile(
-              title: const Text('Atualizar Plano de ação dos Rebocadores'),
-              onTap: () async {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => const AlertDialog(
-                    title: Text('Upload em progresso'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        LinearProgressIndicator(), // Barra de progresso
-                        SizedBox(height: 16),
-                        Text(
-                            'Aguarde enquanto o arquivo está sendo carregado...'),
-                      ],
-                    ),
-                  ),
-                );
-
-                setState(() {
-                  bcChipsVisibility = false;
-                  inspectorChipsVisibility = false;
-                });
-
-                try {
-                  final result = await fileManagement
-                      .pickFiles("Plano de ação dos rebocadores");
-                  final String upload =
-                      await fileManagement.uploaAndGetUrl(result, 'rebocadores');
-                  planRB.url = upload;
-
-                  await fileManagement
-                      .updateUrl('rebocadores', upload)
-                      .whenComplete(
-                        () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Colors.indigo,
-                            duration: Duration(seconds: 2),
-                            content: Text(
-                                'Plano de ação dos rebocadores atualizado com sucesso'),
-                          ),
-                        ),
-                      ); // Atualiza a URL no Firestore
-
-                  // Atualize a interface do usuário com base no resultado do upload
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      backgroundColor: Colors.indigo,
-                      duration: Duration(seconds: 2),
-                      content: Text(
-                          'Erro ao atualizar o plano de ação dos rebocadores, por favor tente novamente'),
-                    ),
-                  );
-                } finally {
-                  Navigator.pop(context); // Feche o diálogo de progresso
-                }
-              },
-            ),
-          ),
-        ],
         PopupMenuItem(
-            child: ListTile(
-              title: const Text('Plano de ação das Barcaças'),
-              onTap: () async {
-                try {
-                  final querySnapshot = await FirebaseFirestore.instance
-                      .collection('plans')
-                      .where('type', isEqualTo: 'barcaças')
-                      .get();
-                  if (querySnapshot.size > 0) {
-                    final document = querySnapshot.docs[0];
-                    planBC = Plan.fromDocument(document);
-                    fileManagement.openFile(planBC.url);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+          child: ListTile(
+            title: const Text('Atualizar Plano de ação dos Rebocadores'),
+            onTap: () async {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => const AlertDialog(
+                  title: Text('Upload em progresso'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      LinearProgressIndicator(), // Barra de progresso
+                      SizedBox(height: 16),
+                      Text(
+                          'Aguarde enquanto o arquivo está sendo carregado...'),
+                    ],
+                  ),
+                ),
+              );
+
+              setState(() {
+                bcChipsVisibility = false;
+                inspectorChipsVisibility = false;
+                inspectionTypesChipsVisibility = false;
+              });
+
+              try {
+                final result = await fileManagement
+                    .pickFiles("Plano de ação dos rebocadores");
+                final String upload =
+                    await fileManagement.uploaAndGetUrl(result, 'rebocadores');
+                planRB.url = upload;
+
+                await fileManagement
+                    .updateUrl('rebocadores', upload)
+                    .whenComplete(
+                      () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
                           backgroundColor: Colors.indigo,
                           duration: Duration(seconds: 2),
                           content: Text(
-                              'Plano de ação das barcaças não encontrado, por favor atualizar')),
-                    );
-                  }
-                } catch (e) {
-                  print(e);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        backgroundColor: Colors.indigo,
-                        duration: Duration(seconds: 2),
-                        content: Text(
-                            'Plano de ação das barcaças não encontrado, por favor atualizar')),
-                  );
-                }
-              },
-            ),
+                              'Plano de ação dos rebocadores atualizado com sucesso'),
+                        ),
+                      ),
+                    ); // Atualiza a URL no Firestore
+
+                // Atualize a interface do usuário com base no resultado do upload
+              } catch (e) {
+                print(e);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Colors.indigo,
+                    duration: Duration(seconds: 2),
+                    content: Text(
+                        'Erro ao atualizar o plano de ação dos rebocadores, por favor tente novamente'),
+                  ),
+                );
+              } finally {
+                Navigator.pop(context); // Feche o diálogo de progresso
+              }
+            },
           ),
-        PopupMenuItem(
-            child: ListTile(
-              title: const Text('Plano de ação das Rebocadores'),
-              onTap: () async {
-                final querySnapshot = await FirebaseFirestore.instance
-                    .collection('plans')
-                    .where('type', isEqualTo: 'rebocadores')
-                    .get();
-                if (querySnapshot.size > 0) {
-                  final document = querySnapshot.docs[0];
-                  planRB = Plan.fromDocument(document);
-                  fileManagement.openFile(planRB.url);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        backgroundColor: Colors.indigo,
-                        duration: Duration(seconds: 2),
-                        content: Text(
-                            'Plano de ação dos rebocadores não encontrado, por favor atualizar')),
-                  );
-                }
-              },
-            ),
-          ),
-          PopupMenuItem(
-            child: ListTile(
-              title: const Text('Filtro por Embarcações'),
-              onTap: () {
-                setState(() {
-                  bcChipsVisibility = !bcChipsVisibility;
-                  inspectorChipsVisibility = false;
-                });
-                Navigator.pop(context);
-              },
-            ),
-          ),
-          PopupMenuItem(
-            child: ListTile(
-              title: const Text('Filtro por Inspetores'),
-              onTap: () {
-                setState(() {
-                  inspectorChipsVisibility = !inspectorChipsVisibility;
-                  bcChipsVisibility = false;
-                });
-                Navigator.pop(context);
-              },
-            ),
-          )]
-    );
+        ),
+      ],
+      PopupMenuItem(
+        child: ListTile(
+          title: const Text('Plano de ação das Barcaças'),
+          onTap: () async {
+            try {
+              final querySnapshot = await FirebaseFirestore.instance
+                  .collection('plans')
+                  .where('type', isEqualTo: 'barcaças')
+                  .get();
+              if (querySnapshot.size > 0) {
+                final document = querySnapshot.docs[0];
+                planBC = Plan.fromDocument(document);
+                fileManagement.openFile(planBC.url);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      backgroundColor: Colors.indigo,
+                      duration: Duration(seconds: 2),
+                      content: Text(
+                          'Plano de ação das barcaças não encontrado, por favor atualizar')),
+                );
+              }
+            } catch (e) {
+              print(e);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    backgroundColor: Colors.indigo,
+                    duration: Duration(seconds: 2),
+                    content: Text(
+                        'Plano de ação das barcaças não encontrado, por favor atualizar')),
+              );
+            }
+          },
+        ),
+      ),
+      PopupMenuItem(
+        child: ListTile(
+          title: const Text('Plano de ação das Rebocadores'),
+          onTap: () async {
+            final querySnapshot = await FirebaseFirestore.instance
+                .collection('plans')
+                .where('type', isEqualTo: 'rebocadores')
+                .get();
+            if (querySnapshot.size > 0) {
+              final document = querySnapshot.docs[0];
+              planRB = Plan.fromDocument(document);
+              fileManagement.openFile(planRB.url);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    backgroundColor: Colors.indigo,
+                    duration: Duration(seconds: 2),
+                    content: Text(
+                        'Plano de ação dos rebocadores não encontrado, por favor atualizar')),
+              );
+            }
+          },
+        ),
+      ),
+      PopupMenuItem(
+        child: ListTile(
+          title: const Text('Filtro por Embarcações'),
+          onTap: () {
+            setState(() {
+              bcChipsVisibility = !bcChipsVisibility;
+              inspectorChipsVisibility = false;
+              inspectionTypesChipsVisibility = false;
+            });
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      PopupMenuItem(
+        child: ListTile(
+          title: const Text('Filtro por Inspetores'),
+          onTap: () {
+            setState(() {
+              inspectorChipsVisibility = !inspectorChipsVisibility;
+              bcChipsVisibility = false;
+              inspectionTypesChipsVisibility = false;
+            });
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      PopupMenuItem(
+        child: ListTile(
+          title: const Text('Filtro por Inspeções'),
+          onTap: () {
+            setState(() {
+              inspectorChipsVisibility = false;
+              bcChipsVisibility = false;
+              inspectionTypesChipsVisibility = !inspectionTypesChipsVisibility;
+            });
+            Navigator.pop(context);
+          },
+        ),
+      )
+    ]);
   }
 
   // void _showMenu(BuildContext context) {
@@ -286,7 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //   final menuItems = Consumer<ApplicationState>(
   //     builder: (constext, appState, _) {
   //       return [
-  
+
   //     showMenu(
   //       context: context,
   //       position: position,
@@ -380,11 +397,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                 } else if (selectedFilter == null) {
                                   //adding filter
                                   selectedFilter = val;
-                                  inspectionController.setBCFilter(val);
+                                  inspectionController.setShipFilter(val);
                                 } else {
                                   inspectionController.clearFilters();
                                   selectedFilter = val;
-                                  inspectionController.setBCFilter(val);
+                                  inspectionController.setShipFilter(val);
                                 }
                               }),
                               choiceItems: C2Choice.listFrom<String, String>(
@@ -435,6 +452,43 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           )),
+                      Visibility(
+                          visible: inspectionTypesChipsVisibility,
+                          child: Content(
+                            child: ChipsChoice<String>.single(
+                              value: selectedFilter,
+                              onChanged: (val) => setState(() {
+                                if (val == selectedFilter) {
+                                  //removing filter
+                                  inspectionController.clearFilters();
+                                  selectedFilter = null;
+                                } else if (selectedFilter == null) {
+                                  //adding filter
+                                  selectedFilter = val;
+                                  inspectionController
+                                      .setInspectionTypeFilter(val);
+                                } else {
+                                  inspectionController.clearFilters();
+                                  selectedFilter = val;
+                                  inspectionController
+                                      .setInspectionTypeFilter(val);
+                                }
+                              }),
+                              choiceItems: C2Choice.listFrom<String, String>(
+                                source:
+                                    inspectionController.inspectionTypeChips,
+                                value: (i, v) => v,
+                                label: (i, v) => v,
+                              ),
+                              choiceStyle: C2ChipStyle.filled(
+                                selectedStyle: const C2ChipStyle(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(5),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ))
                     ],
                   ),
                   Expanded(

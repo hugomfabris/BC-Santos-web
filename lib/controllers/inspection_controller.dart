@@ -3,6 +3,7 @@ import 'package:bcsantos/models/inspection.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class InspectionController extends ChangeNotifier {
   InspectionController() {
@@ -19,7 +20,9 @@ class InspectionController extends ChangeNotifier {
   late List<Inspection> _inspections = [];
   final List<String> inspectorChips = ['SEM INSPEÇÕES'];
   final List<String> shipNameChips = ['SEM INSPEÇÕES'];
+  final List<String> inspectionTypeChips = ['SEM INSPEÇÕES'];
   CollectionReference? inspectionsRef;
+  DateFormat dateFormat = DateFormat("dd/MM/yyyy");
 
   void init() {
     _inspectionsSubscription = FirebaseFirestore.instance
@@ -51,12 +54,16 @@ class InspectionController extends ChangeNotifier {
     } else {
       inspectorChips.clear();
       shipNameChips.clear();
+      inspectionTypeChips.clear();
       for (final inspection in _inspections) {
         if (!inspectorChips.contains(inspection.inspector!)) {
           inspectorChips.add(inspection.inspector!);
         }
         if (!shipNameChips.contains(inspection.shipName!)) {
           shipNameChips.add(inspection.shipName!);
+        }
+        if (!inspectionTypeChips.contains(inspection.inspectionType!)) {
+          inspectionTypeChips.add(inspection.inspectionType!);
         }
       }
     }
@@ -82,7 +89,7 @@ class InspectionController extends ChangeNotifier {
       final storageRef = FirebaseStorage.instance.ref();
       if (inspection.certificate != null) {
         final fileToDelete = storageRef.child(
-            'certificados/${inspection.shipName!.toLowerCase()}/${inspection.inspectionDate.toString()} - certificado ${inspection.shipName!.toLowerCase()}.pdf}');
+            'certificados/${inspection.shipName!.toLowerCase()}/${dateFormat.format(inspection.inspectionDate!).toString()} - certificado ${inspection.shipName!.toLowerCase()}.pdf}');
         try {
           await fileToDelete.delete();
           print('Certificado deletado');
@@ -94,7 +101,7 @@ class InspectionController extends ChangeNotifier {
       }
       if (inspection.checklist != null) {
         final fileToDelete = storageRef.child(
-            'checklists/${inspection.shipName!.toLowerCase()}/${inspection.inspectionDate.toString()} - checklist ${inspection.shipName!.toLowerCase()}.pdf}');
+            'checklists/${inspection.shipName!.toLowerCase()}/${dateFormat.format(inspection.inspectionDate!).toString()} - checklist ${inspection.shipName!.toLowerCase()}.pdf}');
         try {
           await fileToDelete.delete();
         } catch (e) {
@@ -118,8 +125,11 @@ class InspectionController extends ChangeNotifier {
     if (inspections.isEmpty) {
       inspectorChips.clear();
       shipNameChips.clear();
+      inspectionTypeChips.clear();
       inspectorChips.add('SEM INSPEÇÕES');
       shipNameChips.add('SEM INSPEÇÕES');
+      inspectionTypeChips.add('SEM INSPEÇÕES');
+
     } else {
       chipsFilling();
     }
@@ -131,15 +141,23 @@ class InspectionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  setBCFilter(String name) {
+  setShipFilter(String name) {
     _inspections =
-        _inspections.where((element) => element.shipName == name).toList();
+        _inspections.where((element) => element.shipName == name)
+        .toList();
     notifyListeners();
   }
 
   setInspectorFilter(String inspector) {
     _inspections = _inspections
         .where((element) => element.inspector == inspector)
+        .toList();
+    notifyListeners();
+  }
+
+  setInspectionTypeFilter(String type) {
+    _inspections = _inspections
+        .where((element) => element.inspectionType == type)
         .toList();
     notifyListeners();
   }
