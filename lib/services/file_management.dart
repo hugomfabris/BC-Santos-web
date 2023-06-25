@@ -47,10 +47,20 @@ class FileManagement extends StatelessWidget {
     // _setPlanPath();
   }
 
-  Future<FilePickerResult?> pickFiles(String file) async {
+  Future<FilePickerResult?> pickFiles(String title) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      dialogTitle: "Selecione o $file",
+      type: FileType.custom,
+      dialogTitle: title,
+      allowedExtensions: [
+        'pdf',
+        'doc',
+        'docx',
+        'jpg',
+        'jpeg',
+        'png',
+        'xls',
+        'xlsx'
+      ],
     );
 
     return result;
@@ -60,6 +70,7 @@ class FileManagement extends StatelessWidget {
       [DateTime? inspectionDate, String? shipName]) async {
     if (file != null) {
       // Get the file bytes and reference the firebase storage path
+      final extension = file.files.first.extension;
       final selectedFile = file.files.first.bytes;
       final storageRef = FirebaseStorage.instance.ref();
 
@@ -67,7 +78,8 @@ class FileManagement extends StatelessWidget {
         if (folder == 'barcaças' || folder == 'rebocadores') {
           // Delete the reference folder
           try {
-            final filesToDelete = await storageRef.child('Plano de ação/$folder').listAll();
+            final filesToDelete =
+                await storageRef.child('Plano de ação/$folder').listAll();
             for (final file in filesToDelete.items) {
               await file.delete();
             }
@@ -76,7 +88,7 @@ class FileManagement extends StatelessWidget {
           }
           // Create file reference and upload the file
           final fileName =
-              '${dateFormat.format(DateTime.now())} - Plano de ação ${folder.trim()}.pdf';
+              '${dateFormat.format(DateTime.now())} - Plano de ação ${folder.trim()}.$extension';
           // Create or reference a folder and upload the file
           final fileRef = storageRef.child('Plano de ação/$folder/$fileName');
           final uploadTask = fileRef.putData(selectedFile!);
@@ -87,7 +99,8 @@ class FileManagement extends StatelessWidget {
           return planUrl;
         } else if (folder == 'certificados') {
           // Create or reference a folder and upload the file
-          final fileName = '${dateFormat.format(inspectionDate!)} - certificado ${shipName!.trim().toLowerCase()}.pdf';
+          final fileName =
+              '${dateFormat.format(inspectionDate!)} - certificado ${shipName!.trim().toLowerCase()}.$extension';
           final fileRef = storageRef.child('$folder/$shipName/$fileName');
           // Insert the bytes format file in the folder
           final uploadTask = fileRef.putData(selectedFile!);
@@ -97,7 +110,8 @@ class FileManagement extends StatelessWidget {
           return certificateUrl;
         } else if (folder == 'checklists') {
           // Create or reference a folder and upload the file
-          final fileName = '${dateFormat.format(inspectionDate!)} - checklist ${shipName!.trim().toLowerCase()}.pdf';
+          final fileName =
+              '${dateFormat.format(inspectionDate!)} - checklist ${shipName!.trim().toLowerCase()}.$extension';
           final fileRef = storageRef.child('$folder/$shipName/$fileName');
           // Insert the bytes format file in the folder
           final uploadTask = fileRef.putData(selectedFile!);
