@@ -287,33 +287,6 @@ class _MyHomePageState extends State<MyHomePage> {
     ]);
   }
 
-  // void _showMenu(BuildContext context) {
-  //   final RenderBox button = context.findRenderObject() as RenderBox;
-  //   final RenderBox overlay =
-  //       Overlay.of(context).context.findRenderObject() as RenderBox;
-  //   final RelativeRect position = RelativeRect.fromRect(
-  //     Rect.fromPoints(
-  //       button.localToGlobal(Offset.zero, ancestor: overlay),
-  //       button.localToGlobal(button.size.bottomRight(Offset.zero),
-  //           ancestor: overlay),
-  //     ),
-  //     Offset.zero & overlay.size,
-  //   );
-  //   final appState = Provider.of<ApplicationState>(context);
-  //   final menuItems = Consumer<ApplicationState>(
-  //     builder: (constext, appState, _) {
-  //       return [
-
-  //     showMenu(
-  //       context: context,
-  //       position: position,
-  //       items: menuItems,
-  //     );
-  //     }
-  //   )
-
-  // }
-
   @override
   void dispose() {
     super.dispose();
@@ -326,27 +299,28 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         leading: Consumer<ApplicationState>(builder: (context, appState, _) {
           return IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => _showMenu(context, appState.loggedIn));
+            icon: const Icon(Icons.menu),
+            onPressed: () => _showMenu(context, appState.loggedIn),
+          );
         }),
         title: Text(widget.title),
         centerTitle: true,
         actions: [
-          IconButton(onPressed: () {
-            if (appState.loggedIn) {
-              // Usuário está logado
-              GoRouter.of(context).go('/profile');
-            } else {
-              // Usuário não está logado
-              GoRouter.of(context).go('/login');
-            }
-          }, icon: Consumer<ApplicationState>(
-            builder: (context, appState, _) {
-              return appState.loggedIn
-                  ? const Icon(Icons.person)
-                  : const Icon(Icons.login);
+          IconButton(
+            onPressed: () async {
+              if (appState.loggedIn) {
+                // Usuário está logado
+                GoRouter.of(context).go('/profile');
+              } else {
+                // Usuário não está logado
+                await appState.signOutAnonymously(); // Deslogar anonimamente
+                GoRouter.of(context).go('/');
+              }
             },
-          )),
+            icon: appState.loggedIn
+                ? const Icon(Icons.person)
+                : const Icon(Icons.login),
+          ),
         ],
       ),
       body: LayoutBuilder(
@@ -360,21 +334,19 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         },
       ),
-      floatingActionButton: Consumer<ApplicationState>(
-        builder: (context, appState, _) {
-          return Visibility(
-            visible: appState.loggedIn,
-            child: FloatingActionButton(
-              onPressed: () => _addInspection(context),
-              child: const Icon(Icons.add),
-            ),
-          );
-        },
+      floatingActionButton: Visibility(
+        visible: appState.loggedIn,
+        child: FloatingActionButton(
+          onPressed: () => _addInspection(context),
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
 
+
   Widget _buildLayout(String platform) {
+    
     return Center(
         child: AnimatedBuilder(
             animation: inspectionController,
