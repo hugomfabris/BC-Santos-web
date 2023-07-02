@@ -35,128 +35,134 @@ class _LoginState extends State<Login> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Provider<ApplicationState>(
-        create: (_) => ApplicationState(), // Ou forneça uma instância existente se necessário
-        child:Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(30.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 50),
-                Text(
-                  "BC SANTOS",
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Entre na sua conta",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 60),
-                TextFormField(
-                  controller: _controllerUsername,
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    labelText: "Usuário",
-                    prefixIcon: const Icon(Icons.person_outline),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+        backgroundColor: Colors.white,
+        body: Provider<ApplicationState>(
+          create: (_) =>
+              ApplicationState(), // Ou forneça uma instância existente se necessário
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(30.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 50),
+                  Text(
+                    "BC SANTOS",
+                    style: Theme.of(context).textTheme.headlineLarge,
                   ),
-                  onEditingComplete: () => _focusNodePassword.requestFocus(),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _controllerPassword,
-                  focusNode: _focusNodePassword,
-                  obscureText: _obscurePassword,
-                  keyboardType: TextInputType.visiblePassword,
-                  decoration: InputDecoration(
-                    labelText: "Senha",
-                    prefixIcon: const Icon(Icons.password_outlined),
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                        icon: _obscurePassword
-                            ? const Icon(Icons.visibility_outlined)
-                            : const Icon(Icons.visibility_off_outlined)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Entre na sua conta",
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                ),
-                const SizedBox(height: 60),
-                Column(
-                  children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+                  const SizedBox(height: 60),
+                  TextFormField(
+                    controller: _controllerUsername,
+                    keyboardType: TextInputType.name,
+                    decoration: InputDecoration(
+                      labelText: "Usuário",
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: () async {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          try {
-                            final userCredential =
-                                await _auth.signInWithEmailAndPassword(
-                              email: _controllerUsername.text,
-                              password: _controllerPassword.text,
-                            );
-                            if (userCredential.user != null) {
-                              GoRouter.of(context).go('/home');
-                              print('Usuário logado com sucesso!');
-                            }
-                          } catch (e) {
-                            // Trate os erros de autenticação aqui, por exemplo, exiba uma mensagem de erro.
-                            print('Erro ao fazer login: $e');
-                          }
-                        }
-                      },
-                      child: const Text("Login"),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Deseja retornar à home page?"),
-                        TextButton(
+                    onEditingComplete: () => _focusNodePassword.requestFocus(),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _controllerPassword,
+                    focusNode: _focusNodePassword,
+                    obscureText: _obscurePassword,
+                    keyboardType: TextInputType.visiblePassword,
+                    decoration: InputDecoration(
+                      labelText: "Senha",
+                      prefixIcon: const Icon(Icons.password_outlined),
+                      suffixIcon: IconButton(
                           onPressed: () {
-                            _formKey.currentState?.reset();
-                            GoRouter.of(context).go('/');
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
                           },
-                          child: const Text("Retornar"),
-                        ),
-                      ], 
+                          icon: _obscurePassword
+                              ? const Icon(Icons.visibility_outlined)
+                              : const Icon(Icons.visibility_off_outlined)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Esqueceu a senha?"),
-                        TextButton(
-                          onPressed: () {
-                            GoRouter.of(context).go('/forgot-password');
-                          },
-                          child: const Text("Resetar"),
+                  ),
+                  const SizedBox(height: 60),
+                  Column(
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ])
-                  ],
-                ),
-              ],
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            try {
+                              final userCredential =
+                                  await _auth.signInWithEmailAndPassword(
+                                email: _controllerUsername.text,
+                                password: _controllerPassword.text,
+                              );
+                              if (userCredential.user != null) {
+                                GoRouter.of(context).go('/home');
+                                print(userCredential.user);
+                              }
+                            } catch (e) {
+                              // Trate os erros de autenticação aqui, por exemplo, exiba uma mensagem de erro.
+                              print('Erro ao fazer login: $e');
+                            }
+                          }
+                        },
+                        child: const Text("Login"),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Deseja entrar sem logar?"),
+                          TextButton(
+                            onPressed: () async {
+                              FirebaseAuth auth = FirebaseAuth.instance;
+                              try {
+                                await auth.signInAnonymously();
+                                GoRouter.of(context).go('/home');
+                              } catch (e) {
+                                print('Erro ao autenticar anonimamente: $e');
+                              }
+                            },
+                            child: const Text("Entrar"),
+                          ),
+                        ],
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Esqueceu a senha?"),
+                            TextButton(
+                              onPressed: () {
+                                GoRouter.of(context).go('/forgot-password');
+                              },
+                              child: const Text("Resetar"),
+                            ),
+                          ])
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-    ));
+        ));
   }
 
   @override
