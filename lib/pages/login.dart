@@ -42,7 +42,7 @@ class _LoginState extends State<Login> {
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(30.0),
+              padding: const EdgeInsets.symmetric(horizontal: 500),
               child: Column(
                 children: [
                   const SizedBox(height: 50),
