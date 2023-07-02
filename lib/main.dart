@@ -9,27 +9,31 @@ import 'package:go_router/go_router.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
     builder: ((context, child) => const MyApp()),
   ));
+
+ 
 }
 
 final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const MyHomePage(title: 'BC SANTOS'),
+      builder: (context, state) => const Login(),
       routes: [
-        GoRoute(
-          path: 'login',
+        // Adicione a rota "forgot-password" fora da rota de login
+         GoRoute(
+          path: 'home',
           builder: (context, state) {
-            return const Login();
+            return const MyHomePage(title: 'BC SANTOS');
           },
         ),
-        // Adicione a rota "forgot-password" fora da rota de login
         GoRoute(
           path: 'forgot-password',
           builder: (context, state) {
@@ -41,12 +45,6 @@ final _router = GoRouter(
           },
         ),
         GoRoute(
-          path: 'home',
-          builder: (context, state) {
-            return const MyHomePage(title: 'BC SANTOS');
-          },
-        ),
-        GoRoute(
           path: 'profile',
           builder: (context, state) {
             return ProfileScreen(
@@ -54,7 +52,6 @@ final _router = GoRouter(
                 title: const Text('Perfil'),
                 centerTitle: true,
               ),
-              
               providers: const [],
               actions: [
                 SignedOutAction((context) {
