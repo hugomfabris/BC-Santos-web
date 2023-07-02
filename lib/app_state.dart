@@ -13,6 +13,11 @@ class ApplicationState extends ChangeNotifier {
   bool _loggedIn = false;
   bool get loggedIn => _loggedIn;
 
+  set loggedIn(bool value) {
+    _loggedIn = value;
+    notifyListeners();
+  }
+
   Future<void> init() async {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
@@ -20,17 +25,27 @@ class ApplicationState extends ChangeNotifier {
     FirebaseUIAuth.configureProviders([EmailAuthProvider()]);
 
     FirebaseAuth.instance.userChanges().listen((user) {
-      if (user != null) {
+      if (user != null && !user.isAnonymous) {
         _loggedIn = true;
-      } else {
+      } 
+      else {
         _loggedIn = false;
       }
       notifyListeners();
     });
   }
 
-  signOut() {
-    FirebaseAuth.instance.signOut();
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+    loggedIn = false;
   }
+
+  Future<void> signOutAnonymously() async {
+    if (FirebaseAuth.instance.currentUser?.isAnonymous == true) {
+      await FirebaseAuth.instance.signOut();
+      loggedIn = false;
+    }
+  }
+
 
 }
