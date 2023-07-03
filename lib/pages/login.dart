@@ -47,34 +47,37 @@ class _LoginState extends State<Login> {
         // Here we use a LayoutBuilder to generate different widths depending on the screen size 
         body: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            if (constraints.maxWidth <= 400) {
-              return _buildLayout(50);
+            if (constraints.maxWidth < 400) {
+              return _buildLayout(20);
+            }
+            else if (constraints.maxWidth <= 400) {
+              return _buildLayout(30);
             }
             else if (constraints.maxWidth <= 600 && constraints.maxWidth > 400) {
-              return _buildLayout(100);
+              return _buildLayout(50);
             }
             else if (constraints.maxWidth <= 800 && constraints.maxWidth > 600) {
-              return _buildLayout(150);
+              return _buildLayout(100);
             }
             else if (constraints.maxWidth <= 1000 && constraints.maxWidth > 800) {
-              return _buildLayout(200);
+              return _buildLayout(150);
             }
             else if (constraints.maxWidth <= 1200 && constraints.maxWidth > 1000) {
-              return _buildLayout(250);
+              return _buildLayout(200);
             }
             else if (constraints.maxWidth <= 1400 && constraints.maxWidth > 1200) {
               return _buildLayout(300);
             }
             else if (constraints.maxWidth <= 1500 && constraints.maxWidth > 1400) {
-              return _buildLayout(400.0);
+              return _buildLayout(400);
             } else if (constraints.maxWidth <= 1700 && constraints.maxWidth > 1500) {
               return _buildLayout(500.0);
             }
-            else if (constraints.maxWidth <= 1800 && constraints.maxWidth > 1700) {
-              return _buildLayout(600.0);
+            else if (constraints.maxWidth > 1700 ) {
+              return _buildLayout(700.0);
             }
             else {
-              return _buildLayout(700.0);
+              return _buildLayout(0);
             }
           } 
     ));
@@ -104,7 +107,7 @@ class _LoginState extends State<Login> {
                             "BC SANTOS",
                             style: Theme.of(context).textTheme.headlineLarge,
                           ),
-                          const SizedBox(height: 60),
+                          const SizedBox(height: 50),
                           // Add text fields to the form
                           TextFormField(
                             controller: _controllerUsername,
@@ -147,7 +150,7 @@ class _LoginState extends State<Login> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 60),
+                          const SizedBox(height: 50),
                           Column(
                             children: [
                               ElevatedButton(
